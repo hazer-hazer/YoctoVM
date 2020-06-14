@@ -231,7 +231,7 @@ NBlock * Parser::parse_block(){
 	return new NBlock(statements);
 }
 
-NIdentifier * parse_identifier(){
+NIdentifier * Parser::parse_identifier(){
 	if(!is_typeof(T_ID)){
 		expected_error("identifier", "");
 		return nullptr;
@@ -242,7 +242,7 @@ NIdentifier * parse_identifier(){
 	return id;
 }
 
-NVariableDeclaration * Parser::parse_var_decl(){
+NVarDecl * Parser::parse_var_decl(){
 	bool is_val = false;
 	if(is_kw(KW_VAR)){
 		skip_kw(KW_VAR, false, false);
@@ -250,8 +250,16 @@ NVariableDeclaration * Parser::parse_var_decl(){
 		skip_kw(KW_VAL, false, false);
 		is_val = true;
 	}
-	NIdentifier * id = 
 
+	NIdentifier * id = parse_identifier();
+
+	NExpression * assign_expr = nullptr;
+	if(is_op(OP_ASSIGN)){
+		advance();
+		assign_expr = parse_expression();
+	}
+
+	return new NVarDecl(is_val, *id, assign_expr);
 }
 
 NIfExpression * Parser::parse_if_expression(){
@@ -268,6 +276,7 @@ NIfExpression * Parser::parse_if_expression(){
 
 	while(!eof()){
 		if(is_kw(KW_ELIF)){
+			std::cout << "Parse elif" << std::endl;
 			skip_kw(KW_ELIF, true, true);
 			NExpression * condition = parse_expression();
 			NBlock * body = parse_block();

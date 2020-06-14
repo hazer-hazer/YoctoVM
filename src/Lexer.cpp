@@ -89,7 +89,7 @@ void Lexer::add_token(const TokenType & type){
 
 TokenStream Lexer::lex(){
 
-	std::cout << "Lexing script: " << script << std::endl;
+	std::cout << "Lexing script:\n" << script << std::endl;
 
 	while(peek() != '\0' && peek()){
 		if(skip(peek())){

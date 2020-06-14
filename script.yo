@@ -2,7 +2,7 @@ a = 1.1
 
 if a {
 	
-}elif(v){
+}elif v {
 	
 }else{
 	

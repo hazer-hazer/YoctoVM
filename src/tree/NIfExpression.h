@@ -38,7 +38,7 @@ inline std::string conditions_to_str(const ConditionList & conditions){
 struct NIfExpression : NExpression {
 	// Note: There's no separate field for If.
 	// Evaluator checks each condition starting from first
-	// or visits Else if it exists
+	// or evals Else if it exists
 	ConditionList conditions;
 	NBlock * Else;
 
@@ -48,17 +48,6 @@ struct NIfExpression : NExpression {
 
 	virtual std::string to_string() override {
 		return conditions_to_str(conditions) + (Else ? " else " + Else->to_string() : "");
-	}
-
-	virtual Object * visit(Scope * scope) override {
-		for(const auto & c : conditions){
-			if(c.condition.eval(scope)){
-				return c.body.eval(scope);
-			}
-		}
-		if(Else){
-			return Else->eval(scope);
-		}
 	}
 };
 

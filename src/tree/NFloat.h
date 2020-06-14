@@ -12,10 +12,6 @@ struct NFloat : NExpression {
 	virtual std::string to_string() override {
 		return std::to_string(value.Float());
 	}
-
-	virtual Object * eval(Scope * scope) override {
-		return new Float(value);
-	}
 };
 
 #endif

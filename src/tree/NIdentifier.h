@@ -12,13 +12,6 @@ struct NIdentifier : NExpression {
 	virtual std::string to_string() override {
 		return id.String();
 	}
-
-	virtual Object * visit(Scope * scope) override {
-		if(!scope){
-			throw "Unable to use variable";
-		}
-		return scope->lookup(id);
-	}
 };
 
 #endif

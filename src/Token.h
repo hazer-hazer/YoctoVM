@@ -7,6 +7,7 @@
 #include <string>
 
 enum TokenType {
+    T_BOOL,
     T_INT,
     T_FLOAT,
     T_OP,
@@ -44,13 +45,15 @@ inline std::string op_to_str(const Operator & op){
 enum Keyword {
     KW_IF, KW_ELIF, KW_ELSE,
     KW_VAR, KW_VAL,
+    KW_TRUE, KW_FALSE,
 
     KW_MAX
 };
 
 const std::vector <std::string> keywords {
     "if", "elif", "else",
-    "var", "val"
+    "var", "val",
+    "true", "false"
 };
 
 inline Keyword str_to_kw(const std::string & str){
@@ -65,7 +68,7 @@ inline std::string kw_to_str(const Keyword & kw){
 
 // Note: In Yocto floating-point numbers are doubles
 
-typedef std::variant<int, double, std::string, Operator, Keyword> TokenVal;
+typedef std::variant<bool, int, double, std::string, Operator, Keyword> TokenVal;
 
 typedef struct {
     uint32_t line = 0;
@@ -113,8 +116,13 @@ struct Token {
     }
 
     Token(const Keyword & kw){
-        type = T_KW;
-        val = kw;
+        if(kw == KW_TRUE || kw == KW_FALSE){
+            type = T_BOOL;
+            val = kw == KW_TRUE;
+        }else{
+            type = T_KW;
+            val = kw;
+        }
     }
 
     Token(const TokenType & type){
@@ -123,6 +131,10 @@ struct Token {
     }
 
     virtual ~Token() = default;
+
+    bool Bool(){
+        return std::get<bool>(val);
+    }
 
     int Int(){
         return std::get<int>(val);
@@ -148,6 +160,10 @@ struct Token {
         std::string str;
 
         switch(type){
+            case T_BOOL:{
+                str += "bool";
+                break;
+            }
             case T_INT:{
                 str += "int";
                 break;
@@ -181,6 +197,10 @@ struct Token {
         // TODO: Fix quote for empty values
         str += " `";
         switch(type){
+            case T_BOOL:{
+                str += std::to_string(Bool());
+                break;
+            }
             case T_INT:{
                 str += std::to_string(Int());
                 break;

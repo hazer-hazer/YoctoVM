@@ -1,10 +1,7 @@
 #ifndef NODE_H
 #define NODE_H
 
-#include <memory>
-
 #include "Token.h"
-#include "core/Object.h"
 
 struct Node {
 	Node() {}
@@ -15,10 +12,6 @@ struct Node {
 	virtual std::string to_string() {
 		return "[Node]";
 	}
-
-	virtual Object * visit(Scope * scope) {
-		return nullptr;
-	}
 };
 
 struct NStatement : Node {
@@ -28,10 +21,6 @@ struct NStatement : Node {
 	virtual std::string to_string() override {
 		return "[NStatement]";
 	}
-
-	virtual Object * visit(Scope * scope) override {
-		return nullptr;
-	}
 };
 
 struct NExpression : Node {
@@ -40,10 +29,6 @@ struct NExpression : Node {
 
 	virtual std::string to_string() override {
 		return "[NExpression]";
-	}
-
-	virtual Object * visit(Scope * scope) override {
-		return nullptr;
 	}
 };
 
@@ -56,10 +41,6 @@ struct NExpressionStatement : NStatement {
 
 	virtual std::string to_string() override {
 		return expression.to_string();
-	}
-	
-	virtual Object * visit(Scope * scope) override {
-		return expression.visit(scope);
 	}
 };
 

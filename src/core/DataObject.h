@@ -3,9 +3,9 @@
 
 #include "core/Object.h"
 
-class DataObject : Object {
+class DataObject : public Object {
 public:
-	DataObject(){}
+	DataObject() {}
 	virtual ~DataObject() = default;
 };
 

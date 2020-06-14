@@ -20,10 +20,6 @@ struct NPrefixOp : NExpression {
 	virtual std::string to_string() override {
 		return op_to_str(op.op()) +" "+ right.to_string();
 	}
-
-	virtual Object * visit(Scope * scope) override {
-		return nullptr;
-	}
 };
 
 #endif

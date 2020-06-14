@@ -1,5 +1,6 @@
 #include "src/Lexer.h"
 #include "src/Parser.h"
+#include "src/core/TreeVisitor.h"
 
 #include <fstream>
 #include <iostream>
@@ -15,6 +16,7 @@ int main(){
 		}
 
 		Lexer lexer(script_file);
+		std::cout << "Lexing...\n";
 		TokenStream tokens = lexer.lex();
 
 		std::cout << "Tokens:\n";
@@ -23,6 +25,7 @@ int main(){
 		}
 
 		Parser parser(tokens);
+		std::cout << "Parsing...\n";
 		ParseTree tree = parser.parse();
 
 		std::cout << "\nTree:\n";
@@ -30,10 +33,14 @@ int main(){
 			std::cout << n->to_string() << std::endl;
 		}
 
-		Scope * global = new Scope();
+		std::cout << "\nEvaluate...\n";
+
+		TreeVisitor visitor;
 
 		for(Node * n : tree){
-			n->eval(global);
+			if(n){
+				visitor.visit(n);
+			}
 		}
 
 	}catch(const char * e){

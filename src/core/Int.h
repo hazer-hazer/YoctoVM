@@ -3,9 +3,9 @@
 
 #include "core/DataObject.h"
 
-class Int {
+class Int : public DataObject {
 public:
-	Int(const Token & token) : DataObject() {
+	Int(Token & token) : DataObject() {
 		if(token.type != T_INT){
 			throw "Expected int token";
 		}else{
@@ -14,14 +14,6 @@ public:
 	}
 	Int(const int & value) : DataObject(), value(value) {}
 	virtual ~Int() = default;
-
-	int getValue(){
-		return value;
-	}
-
-	operator bool(){
-		return value != 0;
-	}
 
 private:
 	int value;

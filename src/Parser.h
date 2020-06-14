@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "tree/NBlock.h"
+#include "tree/NBool.h"
 #include "tree/NFloat.h"
 #include "tree/NIdentifier.h"
 #include "tree/NIfExpression.h"
@@ -12,6 +13,7 @@
 #include "tree/Node.h"
 #include "tree/NPostfixOp.h"
 #include "tree/NPrefixOp.h"
+#include "tree/NVarDecl.h"
 
 class Parser {
 public:
@@ -64,7 +66,7 @@ private:
 
 	NIdentifier * parse_identifier();
 
-	NVariableDeclaration * parse_var_decl();
+	NVarDecl * parse_var_decl();
 
 	NIfExpression * parse_if_expression();
 
