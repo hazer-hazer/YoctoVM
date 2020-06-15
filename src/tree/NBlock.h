@@ -12,6 +12,10 @@ struct NBlock : NExpression {
 	virtual std::string to_string() override {
 		return "{\n" + statements_to_str(statements) + "\n}";
 	}
+
+	virtual void accept(TreeVisitor & visitor) override {
+		visitor.visit(*this);
+	}
 };
 
 #endif

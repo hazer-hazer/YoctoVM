@@ -26,6 +26,8 @@ enum Operator {
     OP_LPAREN, OP_RPAREN,
     OP_LBRACE, OP_RBRACE,
 
+    OP_COMMA,
+
     OP_SEMICOLON
 };
 
@@ -35,6 +37,9 @@ const std::vector <std::string> operators {
 
     "(", ")",
     "{", "}",
+
+    ",",
+
     ";"
 };
 
@@ -46,6 +51,7 @@ enum Keyword {
     KW_IF, KW_ELIF, KW_ELSE,
     KW_VAR, KW_VAL,
     KW_TRUE, KW_FALSE,
+    KW_FUNC,
 
     KW_MAX
 };
@@ -53,7 +59,8 @@ enum Keyword {
 const std::vector <std::string> keywords {
     "if", "elif", "else",
     "var", "val",
-    "true", "false"
+    "true", "false",
+    "func"
 };
 
 inline Keyword str_to_kw(const std::string & str){

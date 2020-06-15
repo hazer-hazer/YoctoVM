@@ -6,6 +6,8 @@
 #include "tree/NBlock.h"
 #include "tree/NBool.h"
 #include "tree/NFloat.h"
+#include "tree/NFuncCall.h"
+#include "tree/NFuncDecl.h"
 #include "tree/NIdentifier.h"
 #include "tree/NIfExpression.h"
 #include "tree/NInfixOp.h"
@@ -62,13 +64,17 @@ private:
 
 	NExpression * parse_infix(NExpression * left, int prec);
 
-	NBlock * parse_block();
+	NBlock * parse_block(const bool & allow_one_line = false);
 
 	NIdentifier * parse_identifier();
 
 	NVarDecl * parse_var_decl();
 
+	NFuncDecl * parse_func_decl();
+
 	NIfExpression * parse_if_expression();
+
+	NFuncCall * parse_func_call(NExpression * left);
 
 	// Errors
 	void unexpected_token();

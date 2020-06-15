@@ -16,6 +16,10 @@ public:
 	Float(const double & value) : DataObject(), value(value) {}
 	virtual ~Float() = default;
 
+	virtual std::string to_string() override {
+		return std::to_string(value);
+	}
+
 private:
 	double value;
 };

@@ -7,6 +7,10 @@ class DataObject : public Object {
 public:
 	DataObject() {}
 	virtual ~DataObject() = default;
+
+	virtual std::string to_string() override {
+		return "DataObject";
+	}
 };
 
 #endif

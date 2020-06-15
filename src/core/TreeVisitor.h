@@ -1,44 +1,52 @@
 #ifndef TREE_VISITOR_H
 #define TREE_VISITOR_H
 
-#include "tree/NBlock.h"
-#include "tree/NBool.h"
-#include "tree/NFloat.h"
-#include "tree/NIdentifier.h"
-#include "tree/NIfExpression.h"
-#include "tree/NInfixOp.h"
-#include "tree/NInt.h"
-#include "tree/Node.h"
-#include "tree/NPostfixOp.h"
-#include "tree/NPrefixOp.h"
-#include "tree/NVarDecl.h"
-
-#include "core/Object.h"
-
 #include <iostream>
+#include <vector>
+
+#include "core/Scope.h"
+#include "core/BaseVisitor.h"
+
+class Object;
+class DataObject;
 
 // Note: When enter block or something that is scope
-// call method enterScope that creates new scope
+// call method enter_scope that creates new scope
 
-class TreeVisitor {
+class TreeVisitor : public BaseVisitor {
 public:
 	TreeVisitor();
 	virtual ~TreeVisitor() = default;
 
-	Object * visit(NBlock * block);
-	Object * visit(NBool * b);
-	Object * visit(NFloat * f);
-	Object * visit(NIdentifier * id);
-	Object * visit(NIfExpression * if_expr);
-	Object * visit(NInfixOp * infix_op);
-	Object * visit(NInt * i);
-	Object * visit(Node * node);
-	Object * visit(NPostfixOp * postfix_op);
-	Object * visit(NPrefixOp * prefix_op);
-	Object * visit(NVarDecl * var_decl);
+	void visit_tree(const ParseTree & tree) override;
+
+	void visit(NBlock & block) override;
+	void visit(NBool & b) override;
+	void visit(NFloat & f) override;
+	void visit(NFuncCall & func_call) override;
+	void visit(NFuncDecl & func_decl) override;
+	void visit(NIdentifier & id) override;
+	void visit(NIfExpression & if_expr) override;
+	void visit(NInfixOp & infix_op) override;
+	void visit(NInt & i) override;
+	void visit(NPostfixOp & postfix_op) override;
+	void visit(NPrefixOp & prefix_op) override;
+	void visit(NVarDecl & var_decl) override;
+
+	// Get last evaluated result
+	template <typename T>
+	T * get(){
+		return dynamic_cast<T*>(result);
+	}
+
+	Scope * get_scope() override;
 
 private:
+	Scope * scope;
+	Scope * enter_scope();
+	void exit_scope();
 
+	DataObject * result;
 };
 
 #endif

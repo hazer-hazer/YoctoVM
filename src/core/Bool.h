@@ -14,6 +14,10 @@ public:
 	Bool(const bool & value) : DataObject(), value(value) {}
 	virtual ~Bool() = default;
 
+	virtual std::string to_string() override {
+		return std::to_string(value);
+	}
+	
 private:
 	bool value;
 };

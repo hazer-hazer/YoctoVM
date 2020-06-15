@@ -49,6 +49,10 @@ struct NIfExpression : NExpression {
 	virtual std::string to_string() override {
 		return conditions_to_str(conditions) + (Else ? " else " + Else->to_string() : "");
 	}
+
+	virtual void accept(TreeVisitor & visitor) override {
+		visitor.visit(*this);
+	}
 };
 
 #endif

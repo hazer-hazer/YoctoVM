@@ -1,9 +1,7 @@
-a = 1.1
+var a = 12312321
 
-if a {
-	
-}elif v {
-	
-}else{
-	
+func function(n){
+	print(n)
 }
+
+function(a)

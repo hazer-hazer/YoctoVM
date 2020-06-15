@@ -1,6 +1,9 @@
 #include "src/Lexer.h"
 #include "src/Parser.h"
 #include "src/core/TreeVisitor.h"
+#include "src/core/Function.h"
+
+#include "src/core/Int.h"
 
 #include <fstream>
 #include <iostream>
@@ -29,26 +32,31 @@ int main(){
 		ParseTree tree = parser.parse();
 
 		std::cout << "\nTree:\n";
-		for(Node * n : tree){
+		for(const auto & n : tree){
 			std::cout << n->to_string() << std::endl;
 		}
 
 		std::cout << "\nEvaluate...\n";
 
+		std::vector<std::string> params { "o" };
+		BuiltinFunction * print = new BuiltinFunction(params, [&](std::map<std::string, DataObject*> args){
+			std::cout << args["o"]->to_string() << std::endl;
+			return nullptr;
+		});
+
 		TreeVisitor visitor;
 
-		for(Node * n : tree){
-			if(n){
-				visitor.visit(n);
-			}
-		}
+		// Before evaluation started visitor scope is global scope
+		visitor.get_scope()->define_func("print", print);
+
+		visitor.visit_tree(tree);
 
 	}catch(const char * e){
 		std::cout << e << std::endl;
-	}catch(std::exception & e){
-		std::cout << e.what() << std::endl;
 	}catch(const std::string & e){
 		std::cout << e << std::endl;
+	}catch(std::exception & e){
+		std::cout << e.what() << std::endl;
 	}
 
 	return 0;

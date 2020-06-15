@@ -110,11 +110,14 @@ NStatement * Parser::parse_statement(){
 	std::cout << "parse_statement: " << peek().to_string() << std::endl;
 
 	if(is_typeof(T_KW)){
-		switch(peek().op()){
+		switch(peek().kw()){
 			case KW_VAL:
 			case KW_VAR:{
 				return parse_var_decl();
 				break;
+			}
+			case KW_FUNC:{
+				return parse_func_decl();
 			}
 		}
 	}
@@ -137,6 +140,8 @@ NExpression * Parser::parse_expression(){
 		}else if(is_postfix_op()){
 			// Note: After postfix operator there cannot be anything
 			return new NPostfixOp(*left, peek());
+		}else if(is_op(OP_LPAREN)){
+			left = parse_func_call(left);
 		}else{
 			break;
 		}
@@ -199,10 +204,14 @@ NExpression * Parser::parse_infix(NExpression * left, int prec){
 	return left;
 }
 
-NBlock * Parser::parse_block(){
+NBlock * Parser::parse_block(const bool & allow_one_line){
 	StatementList statements;
 		
 	if(!is_op(OP_LBRACE)){
+		if(!allow_one_line){
+			expected_error("operator `{`", "");
+			return nullptr;
+		}
 		// Parse one-line block
 		statements.push_back(parse_statement());
 		return new NBlock(statements);
@@ -262,6 +271,34 @@ NVarDecl * Parser::parse_var_decl(){
 	return new NVarDecl(is_val, *id, assign_expr);
 }
 
+NFuncDecl * Parser::parse_func_decl(){
+	skip_kw(KW_FUNC, false, false);
+
+	NIdentifier * id = parse_identifier();
+
+	skip_op(OP_LPAREN, false, true);
+
+	std::vector<Param> params;
+
+	bool first = true;
+	while(!eof()){
+		if(is_op(OP_RPAREN)){
+			break;
+		}
+		if(first){
+			first = false;
+		}else{
+			skip_op(OP_COMMA);
+		}
+		params.push_back({ *parse_identifier() });
+	}
+	skip_op(OP_RPAREN, true, true);
+
+	NBlock * body = parse_block();
+
+	return new NFuncDecl(*id, params, *body);
+}
+
 NIfExpression * Parser::parse_if_expression(){
 	ConditionList conditions;
 
@@ -279,6 +316,9 @@ NIfExpression * Parser::parse_if_expression(){
 			std::cout << "Parse elif" << std::endl;
 			skip_kw(KW_ELIF, true, true);
 			NExpression * condition = parse_expression();
+
+			// TODO: Think about one-line if body
+
 			NBlock * body = parse_block();
 			ConditionStructure Elif(*condition, *body);
 			conditions.push_back(Elif);
@@ -294,6 +334,29 @@ NIfExpression * Parser::parse_if_expression(){
 	}
 
 	return new NIfExpression(conditions, Else);
+}
+
+NFuncCall * Parser::parse_func_call(NExpression * left){
+	skip_op(OP_LPAREN, false, true);
+
+	ExpressionList args;
+
+	bool first = true;
+	while(!eof()){
+		if(is_op(OP_RPAREN)){
+			break;
+		}
+		if(first){
+			first = false;
+		}else{
+			skip_op(OP_COMMA);
+		}
+		args.push_back(parse_expression());
+	}
+
+	skip_op(OP_RPAREN, true, false);
+
+	return new NFuncCall(*left, args);
 }
 
 ////////////

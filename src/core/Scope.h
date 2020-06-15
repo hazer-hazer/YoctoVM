@@ -4,59 +4,33 @@
 #include <map>
 #include <string>
 
-#include "core/Object.h"
+class Object;
+class DataObject;
+class Function;
 
 class Scope {
 public:
-	// Scope(Scope * parent = nullptr) {
-	// 	this->parent = parent;
-	// }
-	// virtual ~Scope() = default;
+	Scope(Scope * parent = nullptr);
+	virtual ~Scope() = default;
 
-	// bool contains(const std::string & name){
-	// 	return locals.find(name) != locals.end();
-	// }
+	Scope * get_parent();
 
-	// Object * define(NIdentifier & id, Object * value){
-	// 	std::string name = id.id.String();
-	// 	if(contains(name)){
-	// 		throw "Unable to redefine variable " + name;
-	// 	}
-	// 	return locals[name] = value;
-	// }
-	
-	// Object * assign(NIdentifier & id, Object * value){
-	// 	std::string name = id.id.String();
-	// 	if(!contains(name)){
-	// 		throw name + " is not defined";
-	// 	}
-	// 	return locals[name] = value;
-	// }
+	void assert_name_available(const std::string & name);
+	DataObject * define_var(const std::string & name, DataObject * value);
+	DataObject * assign_var(const std::string & name, DataObject * value);
+	DataObject * lookup_var(const std::string & name);
 
-	// Object * get(const std::string & name){
-	// 	if(contains(name)){
-	// 		return locals[name];
-	// 	}else{
-	// 		throw name + " is not defined";
-	// 	}
-	// }
+	Function * define_func(const std::string & name, Function * func);
+	Function * lookup_func(const std::string & name);
 
-	// Object * lookup(NIdentifier & id){
-	// 	std::string name = id.id.String();
-	// 	if(contains(name)){
-	// 		return get(name);
-	// 	}else if(parent){
-	// 		return parent->lookup(id);
-	// 	}else{
-	// 		throw name + " is not defined";
-	// 		return nullptr;
-	// 	}
-	// }
+	// Debug
+	std::string to_string();
 
 private:
 	Scope * parent;
 
-	std::map<std::string, Object*> locals;
+	std::map<std::string, DataObject*> locals;
+	std::map<std::string, Function*> functions;
 };
 
 #endif

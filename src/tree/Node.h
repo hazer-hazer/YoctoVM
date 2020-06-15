@@ -2,6 +2,7 @@
 #define NODE_H
 
 #include "Token.h"
+#include "core/TreeVisitor.h"
 
 struct Node {
 	Node() {}
@@ -12,6 +13,8 @@ struct Node {
 	virtual std::string to_string() {
 		return "[Node]";
 	}
+
+	virtual void accept(TreeVisitor & visitor) = 0;
 };
 
 struct NStatement : Node {
@@ -21,6 +24,8 @@ struct NStatement : Node {
 	virtual std::string to_string() override {
 		return "[NStatement]";
 	}
+
+	virtual void accept(TreeVisitor & visitor) = 0;
 };
 
 struct NExpression : Node {
@@ -30,6 +35,8 @@ struct NExpression : Node {
 	virtual std::string to_string() override {
 		return "[NExpression]";
 	}
+
+	virtual void accept(TreeVisitor & visitor) = 0;
 };
 
 struct NExpressionStatement : NStatement {
@@ -42,12 +49,16 @@ struct NExpressionStatement : NStatement {
 	virtual std::string to_string() override {
 		return expression.to_string();
 	}
+
+	virtual void accept(TreeVisitor & visitor) override {
+		expression.accept(visitor);
+	}
 };
 
 typedef std::vector<Node*> ParseTree;
 
 typedef std::vector<NStatement*> StatementList;
-// typedef std::vector<NExpression*> ExpressionList;
+typedef std::vector<NExpression*> ExpressionList;
 
 inline std::string statements_to_str(const StatementList & stmts){
 	std::string str;

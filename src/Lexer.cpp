@@ -181,6 +181,11 @@ TokenStream Lexer::lex(){
 					advance();
 					break;
 				}
+				case ',':{
+					add_token(OP_COMMA);
+					advance();
+					break;
+				}
 				default:{
 					unexpected_error();
 				}

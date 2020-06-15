@@ -20,6 +20,10 @@ struct NPrefixOp : NExpression {
 	virtual std::string to_string() override {
 		return op_to_str(op.op()) +" "+ right.to_string();
 	}
+
+	virtual void accept(TreeVisitor & visitor) override {
+		visitor.visit(*this);
+	}
 };
 
 #endif
