@@ -5,13 +5,12 @@
 
 class Bool : public DataObject {
 public:
-	Bool(Token & token) : DataObject() {
+	Bool(Token & token) {
 		if(token.type != T_BOOL){
-			throw "Expected bool token";
+			token.error("Expected bool");
 		}
 		value = token.Bool();
 	}
-	Bool(const bool & value) : DataObject(), value(value) {}
 	virtual ~Bool() = default;
 
 	virtual std::string to_string() override {

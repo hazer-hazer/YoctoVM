@@ -5,17 +5,20 @@
 #include <vector>
 #include <map>
 
-#include "core/DataObject.h"
+#include "core/Object.h"
 #include "tree/NFuncDecl.h"
 
 class TreeVisitor;
+class DataObject;
 
 struct NFuncDecl;
 struct Arg;
 struct NExpression;
 
 typedef std::vector<NExpression*> Arguments;
-typedef std::function<DataObject*(std::map<std::string, DataObject*>)> BuiltinFuncBody;
+
+typedef std::map<std::string, DataObject*> BuiltinFuncArgs;
+typedef std::function<DataObject*(BuiltinFuncArgs)> BuiltinFuncBody;
 
 class Function : public Object {
 public:

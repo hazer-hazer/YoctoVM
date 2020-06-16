@@ -31,6 +31,7 @@ public:
 	void visit(NInt & i) override;
 	void visit(NPostfixOp & postfix_op) override;
 	void visit(NPrefixOp & prefix_op) override;
+	void visit(NString & string) override;
 	void visit(NVarDecl & var_decl) override;
 
 	// Get last evaluated result

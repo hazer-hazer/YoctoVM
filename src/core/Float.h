@@ -5,15 +5,12 @@
 
 class Float : public DataObject {
 public:
-	Float(Token & token) : DataObject() {
+	Float(Token & token){
 		if(token.type != T_FLOAT){
-			throw "Expected float token";
-			// token.error("unexpected token");
-		}else{
-			value = token.Float();
+			token.error("Expected float");
 		}
+		value = token.Float();
 	}
-	Float(const double & value) : DataObject(), value(value) {}
 	virtual ~Float() = default;
 
 	virtual std::string to_string() override {

@@ -1,7 +1,5 @@
-var a = 12312321
+var a = 100
 
-func function(n){
-	print(n)
-}
+var b = a + 1 
 
-function(a)
+print(b)

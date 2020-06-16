@@ -39,7 +39,7 @@ int main(){
 		std::cout << "\nEvaluate...\n";
 
 		std::vector<std::string> params { "o" };
-		BuiltinFunction * print = new BuiltinFunction(params, [&](std::map<std::string, DataObject*> args){
+		BuiltinFunction * print = new BuiltinFunction(params, [&](BuiltinFuncArgs args){
 			std::cout << args["o"]->to_string() << std::endl;
 			return nullptr;
 		});

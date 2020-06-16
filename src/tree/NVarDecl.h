@@ -18,7 +18,7 @@ struct NVarDecl : NStatement {
 
 	virtual std::string to_string() override {
 		return std::string(is_val ? "val" : "var") + " " + id.to_string()
-			+ (assign_expr ? assign_expr->to_string() : "");
+			+ (assign_expr ? " = " + assign_expr->to_string() : "");
 	}
 
 	virtual void accept(TreeVisitor & visitor) override {

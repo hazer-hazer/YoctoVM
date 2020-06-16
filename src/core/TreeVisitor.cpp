@@ -12,6 +12,7 @@
 #include "tree/Node.h"
 #include "tree/NPostfixOp.h"
 #include "tree/NPrefixOp.h"
+#include "tree/NString.h"
 #include "tree/NVarDecl.h"
 
 #include "core/Object.h"
@@ -19,6 +20,7 @@
 #include "core/Float.h"
 #include "core/Int.h"
 #include "core/Function.h"
+#include "core/String.h"
 
 TreeVisitor::TreeVisitor(){
 	// Enter global scope
@@ -145,7 +147,7 @@ void TreeVisitor::visit(NInfixOp & infix_op){
 	infix_op.right.accept(*this);
 	DataObject * rhs = get<DataObject>();
 	if(!rhs){
-		throw "Invalid left-hand side";
+		throw "Invalid right-hand side";
 	}
 
 	// Note: Assignment has different behavior than other operators
@@ -160,28 +162,13 @@ void TreeVisitor::visit(NInfixOp & infix_op){
 		}
 	}
 
-	// switch(op){
-	// 	case OP_ADD:{
-	// 		return lho->call_method("__add", rho);
-	// 		break;
-	// 	}
-	// 	case OP_SUB:{
-	// 		return lho->call_method("__sub", rho);
-	// 		break;
-	// 	}
-	// 	case OP_MUL:{
-	// 		return lho->call_method("__mul", rho);
-	// 		break;
-	// 	}
-	// 	case OP_DIV:{
-	// 		return lho->call_method("__div", rho);
-	// 		break;
-	// 	}
-	// 	case OP_MOD:{
-	// 		return lho->call_method("__mod", rho);
-	// 		break;
-	// 	}
-	// }
+	std::vector<NExpression*> right_hand_expr { &infix_op.right };
+	switch(infix_op.op.op()){
+		case OP_ADD:{
+			result = lhs->call_method(*this, "__add", right_hand_expr);
+			break;
+		}
+	}
 }
 
 void TreeVisitor::visit(NInt & i){
@@ -195,6 +182,10 @@ void TreeVisitor::visit(NPostfixOp & postfix_op){
 
 void TreeVisitor::visit(NPrefixOp & prefix_op){
 	std::cout << "visit NPrefixOp" << std::endl;
+}
+
+void TreeVisitor::visit(NString & string){
+	result = new String(string.value);
 }
 
 void TreeVisitor::visit(NVarDecl & var_decl){

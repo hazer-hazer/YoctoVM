@@ -2,17 +2,26 @@
 #define INT_H
 
 #include "core/DataObject.h"
+#include "core/Function.h"
 
 class Int : public DataObject {
 public:
-	Int(Token & token) : DataObject() {
+	Int(Token & token){
 		if(token.type != T_INT){
-			throw "Expected int token";
-		}else{
-			value = token.Int();
+			token.error("Expected int");
 		}
+		value = token.Int();
+	
+		std::vector<std::string> __add_params { "another" };		
+		extend_method("__add", new BuiltinFunction(__add_params, [&](BuiltinFuncArgs args){
+			Int * another = dynamic_cast<Int*>(args["another"]);
+			if(!another){
+				throw "Expected Int";
+			}
+			return new Int(another->get_value() + value);
+		}));
 	}
-	Int(const int & value) : DataObject(), value(value) {}
+	Int(const int & value) : value(value) {}
 	virtual ~Int() = default;
 
 	int get_value(){

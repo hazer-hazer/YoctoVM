@@ -10,6 +10,7 @@ enum TokenType {
     T_BOOL,
     T_INT,
     T_FLOAT,
+    T_STR,
     T_OP,
     T_KW,
     T_ID,
@@ -102,7 +103,8 @@ struct Token {
                 val = std::stod(v);
                 break;
             }
-            case T_ID:{
+            case T_ID:
+            case T_STR:{
                 val = v;
                 break;
             }
@@ -183,6 +185,10 @@ struct Token {
                 str += "identifier";
                 break;
             }
+            case T_STR:{
+                str += "string";
+                break;
+            }
             case T_OP:{
                 str += "operator";
                 break;
@@ -216,7 +222,8 @@ struct Token {
                 str += std::to_string(Float());
                 break;
             }
-            case T_ID:{
+            case T_ID:
+            case T_STR:{
                 str += String();
                 break;
             }

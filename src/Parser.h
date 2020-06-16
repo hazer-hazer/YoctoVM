@@ -15,6 +15,7 @@
 #include "tree/Node.h"
 #include "tree/NPostfixOp.h"
 #include "tree/NPrefixOp.h"
+#include "tree/NString.h"
 #include "tree/NVarDecl.h"
 
 class Parser {

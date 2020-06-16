@@ -13,6 +13,7 @@ struct NInt;
 struct Node;
 struct NPostfixOp;
 struct NPrefixOp;
+struct NString;
 struct NVarDecl;
 
 typedef std::vector<Node*> ParseTree;
@@ -32,6 +33,7 @@ class BaseVisitor {
 	virtual void visit(NInt & i) = 0;
 	virtual void visit(NPostfixOp & postfix_op) = 0;
 	virtual void visit(NPrefixOp & prefix_op) = 0;
+	virtual void visit(NString & string) = 0;
 	virtual void visit(NVarDecl & var_decl) = 0;
 
 	virtual Scope * get_scope() = 0;

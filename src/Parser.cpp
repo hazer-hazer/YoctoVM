@@ -167,6 +167,10 @@ NExpression * Parser::parse_atom(){
 	if(is_typeof(T_ID)){
 		return parse_identifier();
 	}
+	if(is_typeof(T_STR)){
+		advance();
+		return new NString(current);
+	}
 
 	if(is_op(OP_LPAREN)){
 		// Parse subexpression

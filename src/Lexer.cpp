@@ -25,6 +25,10 @@ char Lexer::advance(){
 	return peek();
 }
 
+bool Lexer::eof(){
+	return peek() == '\0';
+}
+
 bool Lexer::skip(const char & c){
 	return peek() == '\t' || peek() == ' ';
 }
@@ -45,6 +49,10 @@ bool Lexer::is_id_first(const char & c){
 
 bool Lexer::is_id(const char & c){
 	return is_id_first(c) || is_digit(c);
+}
+
+bool Lexer::is_quote(const char & c){
+	return c == '"' || c == '\'' || c == '`';
 }
 
 void Lexer::add_token(const TokenType & type, const std::string & val){
@@ -91,7 +99,7 @@ TokenStream Lexer::lex(){
 
 	std::cout << "Lexing script:\n" << script << std::endl;
 
-	while(peek() != '\0' && peek()){
+	while(!eof()){
 		if(skip(peek())){
 			advance();
 		}else if(is_newline(peek())){
@@ -124,6 +132,25 @@ TokenStream Lexer::lex(){
 			}else{
 				add_token(T_ID, id);
 			}
+		}else if(is_quote(peek())){
+			const char quote = peek();
+			advance();
+			std::string str = "";
+			while(!eof()){
+				if(peek() == quote){
+					break;
+				}
+				str += peek();
+				advance();
+			}
+			if(eof()){
+				unexpected_eof_error();
+			}
+			if(peek() != quote){
+				unexpected_error();
+			}
+			add_token(T_STR, str);
+			advance();
 		}else{
 			switch(peek()){
 				case '=':{
@@ -201,4 +228,8 @@ TokenStream Lexer::lex(){
 void Lexer::unexpected_error(){
 	throw "Unexpected token `"+ std::string(1, peek()) +
 		  "` at "+ std::to_string(line) +":"+ std::to_string(column);
+}
+
+void Lexer::unexpected_eof_error(){
+	throw "Unexpected end of file";
 }

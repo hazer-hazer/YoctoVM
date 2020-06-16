@@ -31,15 +31,19 @@ private:
     uint32_t line;
     uint32_t column;
 
+    bool eof();
+
     // Determinators
     bool skip(const char & c);
     bool is_newline(const char & c);
     bool is_digit(const char & c);
     bool is_id_first(const char & c);
     bool is_id(const char & c);
+    bool is_quote(const char & c);
 
     // Errors
     void unexpected_error();
+    void unexpected_eof_error();
 };
 
 #endif

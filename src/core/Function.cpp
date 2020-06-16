@@ -1,4 +1,5 @@
 #include "core/Function.h"
+#include "core/DataObject.h"
 
 std::string Function::to_string(){
 	return "Function";
