@@ -23,6 +23,9 @@ public:
 	Function * define_func(const std::string & name, Function * func);
 	Function * lookup_func(const std::string & name);
 
+	NType * define_type(const std::string & name, NType * type);
+	NType * lookup_type(const std::string & name);
+
 	// Debug
 	std::string to_string();
 
@@ -31,6 +34,7 @@ private:
 
 	std::map<std::string, DataObject*> locals;
 	std::map<std::string, Function*> functions;
+	std::map<std::string, NType*> types;
 };
 
 #endif

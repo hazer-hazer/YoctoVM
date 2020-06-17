@@ -38,16 +38,18 @@ int main(){
 
 		std::cout << "\nEvaluate...\n";
 
-		std::vector<std::string> params { "o" };
-		BuiltinFunction * print = new BuiltinFunction(params, [&](BuiltinFuncArgs args){
-			std::cout << args["o"]->to_string() << std::endl;
-			return nullptr;
-		});
-
 		TreeVisitor visitor;
 
+		visitor.get_scope()->define_type("int", )
+
+		// std::vector<std::string> params { "o" };
+		// BuiltinFunction * print = new BuiltinFunction(params, [&](BuiltinFuncArgs args){
+		// 	std::cout << args["o"]->to_string() << std::endl;
+		// 	return nullptr;
+		// });
+
 		// Before evaluation started visitor scope is global scope
-		visitor.get_scope()->define_func("print", print);
+		// visitor.get_scope()->define_func("print", print);
 
 		visitor.visit_tree(tree);
 

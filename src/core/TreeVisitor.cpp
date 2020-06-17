@@ -121,18 +121,28 @@ void TreeVisitor::visit(NIdentifier & id){
 }
 
 void TreeVisitor::visit(NIfExpression & if_expr){
-	// std::cout << "visit NIfExpression" << std::endl;
+	std::cout << "visit NIfExpression" << std::endl;
 
-	// for(const auto & c : conditions){
-	// 	if(c.condition.eval(scope)){
-	// 		return c.body.eval(scope);
-	// 	}
-	// }
-	// if(Else){
-	// 	return Else->eval(scope);
-	// }
+	bool if_visited = false;
+	for(const auto & c : if_expr.conditions){
+		if(if_visited){
+			break;
+		}
 
-	// return nullptr;
+		c.condition.visit(*this);
+		Bool * b = get<Bool>();
+		if(b){
+			if(b.get_value()){
+				c.body.visit(*this);
+				if_visited = true;
+			}
+		}else{
+			throw "If expression requires boolean";
+		}
+	}
+	if(!if_visited && if_expr.Else){
+		Else->visit(*this);
+	}
 }
 
 void TreeVisitor::visit(NInfixOp & infix_op){
@@ -199,7 +209,6 @@ void TreeVisitor::visit(NVarDecl & var_decl){
 			throw "Invalid right-hand side in assignment";
 		}
 	}
-
 
 	scope->define_var(var_decl.id.name.String(), value);
 }

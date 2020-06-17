@@ -12,7 +12,10 @@ Scope * Scope::get_parent(){
 }
 
 void Scope::assert_name_available(const std::string & name){
-	if(locals.find(name) != locals.end() && functions.find(name) != functions.end()){
+	if(locals.find(name) != locals.end()
+	|| functions.find(name) != functions.end()
+	|| types.find(name) != types.end())
+	{
 		throw name + " is already defined";
 	}
 }
@@ -79,6 +82,21 @@ Function * Scope::lookup_func(const std::string & name){
 		return parent->lookup_func(name);
 	}
 	throw name + " is not defined";
+}
+
+NType * Scope::define_type(const std::string & name, NType * type){
+	assert_name_available(name);
+
+	return types[name] = type;
+}
+
+NType * Scope::lookup_type(const std::string & name){
+	if(types.find(name) != types.end()){
+		return types[name];
+	}else if(parent){
+		return parent->lookup_type(name);
+	}
+	throw "type "+ name +" is not defined";
 }
 
 // Debug

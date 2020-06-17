@@ -16,6 +16,10 @@ public:
 	virtual std::string to_string() override {
 		return std::to_string(value);
 	}
+
+	bool get_value(){
+		return value;
+	}
 	
 private:
 	bool value;

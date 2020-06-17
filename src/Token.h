@@ -27,7 +27,7 @@ enum Operator {
     OP_LPAREN, OP_RPAREN,
     OP_LBRACE, OP_RBRACE,
 
-    OP_COMMA,
+    OP_COMMA, OP_COLON,
 
     OP_SEMICOLON
 };
@@ -39,7 +39,7 @@ const std::vector <std::string> operators {
     "(", ")",
     "{", "}",
 
-    ",",
+    ",", ":",
 
     ";"
 };
