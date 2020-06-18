@@ -1,4 +1,4 @@
-<img src="https://github.com/hazer-hazer/Yocto/img/Yocto.png" width="250">
+<img src="img/Yocto.png" width="250">
 
 # Yocto
 
