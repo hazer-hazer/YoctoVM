@@ -1,4 +1,4 @@
-![Yocto](/img/Yocto.png)
+![Yocto](/img/Yocto.png =250x)
 
 # Yocto
 
