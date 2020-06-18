@@ -4,6 +4,7 @@
 #include "src/core/Function.h"
 
 #include "src/core/Int.h"
+#include "src/core/String.h"
 
 #include <fstream>
 #include <iostream>
@@ -40,16 +41,14 @@ int main(){
 
 		TreeVisitor visitor;
 
-		visitor.get_scope()->define_type("int", )
-
-		// std::vector<std::string> params { "o" };
-		// BuiltinFunction * print = new BuiltinFunction(params, [&](BuiltinFuncArgs args){
-		// 	std::cout << args["o"]->to_string() << std::endl;
-		// 	return nullptr;
-		// });
+		std::vector<std::string> params { "o" };
+		BuiltinFunction * print = new BuiltinFunction(params, [&](BuiltinFuncArgs args){
+			std::cout << args["o"]->toString()->get_value() << std::endl;
+			return nullptr;
+		});
 
 		// Before evaluation started visitor scope is global scope
-		// visitor.get_scope()->define_func("print", print);
+		visitor.get_scope()->define_func("print", print);
 
 		visitor.visit_tree(tree);
 

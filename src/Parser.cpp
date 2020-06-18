@@ -266,21 +266,13 @@ NVarDecl * Parser::parse_var_decl(){
 
 	NIdentifier * id = parse_identifier();
 
-	// Parse type
-	std::cout << "parse_type" << std::endl;
-	NType * type = nullptr;
-	if(is_op(OP_COLON)){
-		advance();
-		type = parse_type();
-	}
-
 	NExpression * assign_expr = nullptr;
 	if(is_op(OP_ASSIGN)){
 		advance();
 		assign_expr = parse_expression();
 	}
 
-	return new NVarDecl(is_val, *id, type, assign_expr);
+	return new NVarDecl(is_val, *id, assign_expr);
 }
 
 NFuncDecl * Parser::parse_func_decl(){
@@ -369,18 +361,6 @@ NFuncCall * Parser::parse_func_call(NExpression * left){
 	skip_op(OP_RPAREN, true, false);
 
 	return new NFuncCall(*left, args);
-}
-
-NType * Parser::parse_type(){
-	NType * type = nullptr;
-
-	if(is_typeof(T_ID)){
-		type = new NIdType(*parse_identifier());
-	}
-
-	// TODO: Add nullable mark
-	
-	return type;
 }
 
 ////////////

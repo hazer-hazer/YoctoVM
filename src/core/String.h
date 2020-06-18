@@ -1,21 +1,23 @@
 #ifndef STRING_H
 #define STRING_H
 
-#include "DataObject.h"
+#include "core/DataObject.h"
+
+struct Token;
+
+class Bool;
 
 class String : public DataObject {
 public:
-	String(Token & token){
-		if(token.type != T_STR){
-			token.error("Expected string");
-		}
-		value = token.String();
-	}
+	String(Token & token);
+	String(const std::string & value) : value(value) {}
 	virtual ~String() = default;
 
-	virtual std::string to_string() override {
-		return value;
-	}
+	std::string get_value();
+
+	// Extension methods
+	Bool * toBool() override;
+	String * toString() override;
 
 private:
 	std::string value;

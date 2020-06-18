@@ -51,7 +51,7 @@ public:
 	virtual void visit(NVarDecl & var_decl);
 
 	// Get last evaluated result
-	template <typename T>
+	template <typename T = DataObject>
 	T * get(){
 		return dynamic_cast<T*>(result);
 	}
@@ -60,7 +60,7 @@ public:
 
 private:
 	Scope * scope;
-	Scope * enter_scope();
+	Scope * enter_scope(Scope * nested = nullptr);
 	void exit_scope();
 
 	DataObject * result;

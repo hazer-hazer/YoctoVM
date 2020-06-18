@@ -15,6 +15,8 @@ struct Node {
 	}
 
 	virtual void accept(TreeVisitor & visitor) = 0;
+
+	virtual void error(const std::string & msg) = 0;
 };
 
 struct NStatement : Node {
@@ -26,6 +28,8 @@ struct NStatement : Node {
 	}
 
 	virtual void accept(TreeVisitor & visitor) = 0;
+
+	virtual void error(const std::string & msg) = 0;
 };
 
 struct NExpression : Node {
@@ -37,6 +41,8 @@ struct NExpression : Node {
 	}
 
 	virtual void accept(TreeVisitor & visitor) = 0;
+
+	virtual void error(const std::string & msg) = 0;
 };
 
 struct NExpressionStatement : NStatement {
@@ -52,6 +58,10 @@ struct NExpressionStatement : NStatement {
 
 	virtual void accept(TreeVisitor & visitor) override {
 		expression.accept(visitor);
+	}
+
+	virtual void error(const std::string & msg) override {
+		expression.error(msg);
 	}
 };
 

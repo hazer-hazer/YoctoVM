@@ -4,9 +4,14 @@
 #include <map>
 #include <string>
 
+// Note: The reason why Scope functions receive NIdentifier and not a string
+// is because of error tracking
+
 class Object;
 class DataObject;
 class Function;
+
+struct NIdentifier;
 
 class Scope {
 public:
@@ -14,17 +19,15 @@ public:
 	virtual ~Scope() = default;
 
 	Scope * get_parent();
+	void set_parent(Scope * parent);
 
-	void assert_name_available(const std::string & name);
-	DataObject * define_var(const std::string & name, DataObject * value);
-	DataObject * assign_var(const std::string & name, DataObject * value);
-	DataObject * lookup_var(const std::string & name);
+	void assert_name_available(NIdentifier & id);
+	DataObject * define_var(NIdentifier & id, DataObject * value);
+	DataObject * assign_var(NIdentifier & id, DataObject * value);
+	DataObject * lookup_var(NIdentifier & id);
 
-	Function * define_func(const std::string & name, Function * func);
-	Function * lookup_func(const std::string & name);
-
-	NType * define_type(const std::string & name, NType * type);
-	NType * lookup_type(const std::string & name);
+	Function * define_func(NIdentifier & id, Function * func);
+	Function * lookup_func(NIdentifier & id);
 
 	// Debug
 	std::string to_string();
@@ -34,7 +37,6 @@ private:
 
 	std::map<std::string, DataObject*> locals;
 	std::map<std::string, Function*> functions;
-	std::map<std::string, NType*> types;
 };
 
 #endif

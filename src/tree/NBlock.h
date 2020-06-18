@@ -16,6 +16,12 @@ struct NBlock : NExpression {
 	virtual void accept(TreeVisitor & visitor) override {
 		visitor.visit(*this);
 	}
+
+	void error(const std::string & msg) override {
+		if(statements.size() > 0){
+			statements[0]->error(msg);
+		}
+	}
 };
 
 #endif

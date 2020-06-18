@@ -10,6 +10,7 @@
 
 class TreeVisitor;
 class DataObject;
+class Scope;
 
 struct NFuncDecl;
 struct Arg;
@@ -20,14 +21,12 @@ typedef std::vector<NExpression*> Arguments;
 typedef std::map<std::string, DataObject*> BuiltinFuncArgs;
 typedef std::function<DataObject*(BuiltinFuncArgs)> BuiltinFuncBody;
 
-class Function : public Object {
+class Function : public Object, public Scope {
 public:
 	Function() {}
 	virtual ~Function() = default;
 
 	virtual DataObject * apply(TreeVisitor & visitor, const Arguments & args) = 0;
-
-	virtual std::string to_string() override;
 };
 
 class UserFunction : public Function {
@@ -39,7 +38,6 @@ public:
 	
 	virtual DataObject * apply(TreeVisitor & visitor, const Arguments & args) override;
 
-	virtual std::string to_string() override;
 private:
 	NFuncDecl & func_decl;
 };
@@ -52,8 +50,6 @@ public:
 	virtual ~BuiltinFunction() = default;
 
 	virtual DataObject * apply(TreeVisitor & visitor, const Arguments & args) override;
-
-	virtual std::string to_string() override;
 
 private:
 	std::vector<std::string> params;

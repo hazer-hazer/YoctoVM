@@ -27,12 +27,19 @@ TreeVisitor::TreeVisitor(){
 	enter_scope();
 }
 
-Scope * TreeVisitor::enter_scope(){
-	// Create nested scope with parent of current scope
-	return scope = new Scope(scope);
+Scope * TreeVisitor::enter_scope(Scope * nested){
+	std::cout << "Enter scope" << std::endl;
+	if(!nested){
+		// Create nested scope with parent of current scope
+		return scope = new Scope(nested);
+	}else{
+		nested->set_parent(scope);
+		return this->scope = nested;
+	}
 }
 
 void TreeVisitor::exit_scope(){
+	std::cout << "exit_scope" << std::endl;
 	// std::cout << "Exit scope (look at these guys before they will be destroyed):\n" + scope->to_string();
 
 	Scope * parent = scope->get_parent();
@@ -81,16 +88,16 @@ void TreeVisitor::visit(NFuncCall & func_call){
 
 	Function * func = nullptr;
 	if(id){
-		func = scope->lookup_func(id->get_name());
+		func = scope->lookup_func(id);
 	}else{
-		throw "Invalid left-hand side for function call";
+		left.error("Invalid left-hand side for function call");
 	}
 
 	// if(func->params.size() != func_call.args.size()){
 	// 	throw "Expected " + std::to_string(func->params.size()) + " arguments";
 	// }
-
-	enter_scope();
+	
+	enter_scope(func);
 	
 	// for(int i = 0; i < func_call.args.size(); i++){
 	// 	// Eval argument and put its value to function scope
@@ -102,7 +109,6 @@ void TreeVisitor::visit(NFuncCall & func_call){
 
 	func->apply(*this, func_call.args);
 
-
 	exit_scope();
 }
 
@@ -112,16 +118,18 @@ void TreeVisitor::visit(NFuncDecl & func_decl){
 		
 	UserFunction * user_defined_func = new UserFunction(func_decl);
 
-	scope->define_func(func_decl.get_name(), user_defined_func);
+	scope->define_func(func_decl.id, user_defined_func);
 }
 
 void TreeVisitor::visit(NIdentifier & id){
 	// std::cout << "visit NIdentifier\n";
-	result = scope->lookup_var(id.get_name());
+	result = scope->lookup_var(id);
 }
 
 void TreeVisitor::visit(NIfExpression & if_expr){
 	std::cout << "visit NIfExpression" << std::endl;
+
+	enter_scope();
 
 	bool if_visited = false;
 	for(const auto & c : if_expr.conditions){
@@ -129,33 +137,34 @@ void TreeVisitor::visit(NIfExpression & if_expr){
 			break;
 		}
 
-		c.condition.visit(*this);
-		Bool * b = get<Bool>();
-		if(b){
-			if(b.get_value()){
-				c.body.visit(*this);
-				if_visited = true;
-			}
-		}else{
-			throw "If expression requires boolean";
+		c.condition.accept(*this);
+
+		// TODO: Add error catching
+		// if(b->has_method("toBool"))
+
+		if(get<>()->toBool()->get_value()){
+			c.body.accept(*this);
+			if_visited = true;
 		}
 	}
 	if(!if_visited && if_expr.Else){
-		Else->visit(*this);
+		if_expr.Else->accept(*this);
 	}
+
+	exit_scope();
 }
 
 void TreeVisitor::visit(NInfixOp & infix_op){
 	// std::cout << "visit NInfixOp" << std::endl;
 
 	infix_op.left.accept(*this);
-	DataObject * lhs = get<DataObject>();
+	DataObject * lhs = get<>();
 	if(!lhs){
 		throw "Invalid left-hand side";
 	}
 
 	infix_op.right.accept(*this);
-	DataObject * rhs = get<DataObject>();
+	DataObject * rhs = get<>();
 	if(!rhs){
 		throw "Invalid right-hand side";
 	}
@@ -166,10 +175,11 @@ void TreeVisitor::visit(NInfixOp & infix_op){
 	if(infix_op.op.op() == OP_ASSIGN){
 		NIdentifier * id = dynamic_cast<NIdentifier*>(&(infix_op.left));
 		if(id){
-			result = scope->assign_var(id->name.String(), rhs);
+			result = scope->assign_var(id, rhs);
 		}else{
 			throw "Invalid left-hand side in assignment";
 		}
+		return;
 	}
 
 	std::vector<NExpression*> right_hand_expr { &infix_op.right };
@@ -203,14 +213,14 @@ void TreeVisitor::visit(NVarDecl & var_decl){
 	// TODO: Add is_val status
 	DataObject * value = nullptr;
 	if(var_decl.assign_expr){
+		result = nullptr;
 		var_decl.assign_expr->accept(*this);
-		value = dynamic_cast<DataObject*>(result);
-		if(!value){
-			throw "Invalid right-hand side in assignment";
+		if(!result){
+			throw "Invalid right-hand side in variable initialization";
 		}
+		value = get<>();
 	}
-
-	scope->define_var(var_decl.id.name.String(), value);
+	scope->define_var(var_decl.id, value);
 }
 
 Scope * TreeVisitor::get_scope(){

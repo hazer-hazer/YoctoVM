@@ -1,3 +1,8 @@
-var a: int = 100
+var a = 1
 
-var b = a + 1 
+a = if(a){
+	print(a)
+	100
+}
+
+print(a)

@@ -3,20 +3,22 @@
 
 #include "core/DataObject.h"
 
+struct Token;
+
+class Bool;
+class String;
+
 class Float : public DataObject {
 public:
-	Float(Token & token){
-		if(token.type != T_FLOAT){
-			token.error("Expected float");
-		}
-		value = token.Float();
-	}
+	Float(Token & token);
+	Float(const double & value) : value(value) {}
 	virtual ~Float() = default;
 
-	virtual std::string to_string() override {
-		return std::to_string(value);
-	}
+	double get_value();
 
+	// Extension methods
+	Bool * toBool() override;
+	String * toString() override;
 private:
 	double value;
 };

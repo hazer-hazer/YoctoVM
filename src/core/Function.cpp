@@ -1,9 +1,6 @@
 #include "core/Function.h"
 #include "core/DataObject.h"
-
-std::string Function::to_string(){
-	return "Function";
-}
+#include "core/Scope.h"
 
 DataObject * UserFunction::apply(TreeVisitor & visitor, const Arguments & args){
 	for(int i = 0; i < args.size(); i++){
@@ -17,10 +14,6 @@ DataObject * UserFunction::apply(TreeVisitor & visitor, const Arguments & args){
 	return nullptr;
 }
 
-std::string UserFunction::to_string(){
-	return "UserFunction " + func_decl.to_string();
-}
-
 DataObject * BuiltinFunction::apply(TreeVisitor & visitor, const Arguments & args){
 	std::map<std::string, DataObject*> builtin_args;
 
@@ -31,8 +24,4 @@ DataObject * BuiltinFunction::apply(TreeVisitor & visitor, const Arguments & arg
 	}
 
 	return body(builtin_args);
-}
-
-std::string BuiltinFunction::to_string(){
-	return "BuiltinFunction";
 }

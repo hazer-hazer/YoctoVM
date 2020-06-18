@@ -2,16 +2,14 @@
 #define NVARDECL_H
 
 #include "tree/Node.h"
-#include "tree/NType.h"
 
 struct NVarDecl : NStatement {
 	bool is_val;
 	NIdentifier & id;
-	NType * type;
 	NExpression * assign_expr;
 
-	NVarDecl(const bool & is_val, NIdentifier & id, NType * type, NExpression * assign_expr)
-		: is_val(is_val), id(id), type(type), assign_expr(assign_expr) {}
+	NVarDecl(const bool & is_val, NIdentifier & id, NExpression * assign_expr)
+		: is_val(is_val), id(id), assign_expr(assign_expr) {}
 	virtual ~NVarDecl() = default;
 
 	std::string get_name(){
@@ -20,12 +18,15 @@ struct NVarDecl : NStatement {
 
 	virtual std::string to_string() override {
 		return std::string(is_val ? "val" : "var") + " " + id.to_string()
-			+ (type ? ": " + type->to_string() : "")
 			+ (assign_expr ? " = " + assign_expr->to_string() : "");
 	}
 
 	virtual void accept(TreeVisitor & visitor) override {
 		visitor.visit(*this);
+	}
+
+	void error(const std::string & msg) override {
+		id.error(msg);
 	}
 };
 

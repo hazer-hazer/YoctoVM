@@ -16,7 +16,6 @@
 #include "tree/NPostfixOp.h"
 #include "tree/NPrefixOp.h"
 #include "tree/NString.h"
-#include "tree/NType.h"
 #include "tree/NVarDecl.h"
 
 class Parser {
@@ -77,8 +76,6 @@ private:
 	NIfExpression * parse_if_expression();
 
 	NFuncCall * parse_func_call(NExpression * left);
-
-	NType * parse_type();
 
 	// Errors
 	void unexpected_token();

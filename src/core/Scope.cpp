@@ -2,54 +2,58 @@
 
 #include "core/DataObject.h"
 #include "core/Function.h"
+#include "tree/NIdentifier.h"
 
 Scope::Scope(Scope * parent){
-	this->parent = parent;
+	set_parent(parent);
 }
 
 Scope * Scope::get_parent(){
 	return parent;
 }
 
-void Scope::assert_name_available(const std::string & name){
-	if(locals.find(name) != locals.end()
-	|| functions.find(name) != functions.end()
-	|| types.find(name) != types.end())
+void Scope::set_parent(Scope * parent){
+	this->parent = parent;
+}
+
+void Scope::assert_name_available(NIdentifier & id){
+	if(locals.find(id.get_name()) != locals.end()
+	|| functions.find(id.get_name()) != functions.end())
 	{
-		throw name + " is already defined";
+		id.error("is already defined");
 	}
 }
 
-DataObject * Scope::define_var(const std::string & name, DataObject * value){
-	assert_name_available(name);
-	return locals[name] = value;
+DataObject * Scope::define_var(NIdentifier & id, DataObject * value){
+	assert_name_available(id.get_name());
+	return locals[id.get_name()] = value;
 }
 
-DataObject * Scope::assign_var(const std::string & name, DataObject * value){
-	if(locals.find(name) != locals.end()){
-		throw name + " is not defined";
+DataObject * Scope::assign_var(NIdentifier & id, DataObject * value){
+	if(locals.find(id.get_name()) == locals.end()){
+		id.error("is not defined");
 	}
-	return locals[name] = value;
+	return locals[id.get_name()] = value;
 }
 
-DataObject * Scope::lookup_var(const std::string & name){
-	if(locals.find(name) != locals.end()){
-		return locals[name];
+DataObject * Scope::lookup_var(NIdentifier & id){
+	if(locals.find(id.get_name()) != locals.end()){
+		return locals[id.get_name()];
 	}else if(parent){
-		return parent->lookup_var(name);
+		return parent->lookup_var(id.get_name());
 	}else{
-		throw name + " is not defined";
+		id.error("is not defined");
 		return nullptr;
 	}
 }
 
-Function * Scope::define_func(const std::string & name, Function * func){
+Function * Scope::define_func(NIdentifier & id, Function * func){
 	// TODO: Rewrite after types implementation
 	// Now it's not possible to overload function
 	
-	assert_name_available(name);
+	assert_name_available(id.get_name());
 
-	return functions[name] = func;
+	return functions[id.get_name()] = func;
 
 	// // Note: It's not possible to define function with name 
 	// // that is already taken for variable
@@ -75,40 +79,26 @@ Function * Scope::define_func(const std::string & name, Function * func){
 	// functions[name] = func_decl;
 }
 
-Function * Scope::lookup_func(const std::string & name){
-	if(functions.find(name) != functions.end()){
-		return functions[name];
+Function * Scope::lookup_func(NIdentifier & id){
+	if(functions.find(id.get_name()) != functions.end()){
+		return functions[id.get_name()];
 	}else if(parent){
-		return parent->lookup_func(name);
+		return parent->lookup_func(id.get_name());
 	}
-	throw name + " is not defined";
-}
-
-NType * Scope::define_type(const std::string & name, NType * type){
-	assert_name_available(name);
-
-	return types[name] = type;
-}
-
-NType * Scope::lookup_type(const std::string & name){
-	if(types.find(name) != types.end()){
-		return types[name];
-	}else if(parent){
-		return parent->lookup_type(name);
-	}
-	throw "type "+ name +" is not defined";
+	id.error("is not defined");
 }
 
 // Debug
 std::string Scope::to_string(){
-	std::string str;
-	str += "Locals defined:\n";
-	for(const auto & l : locals){
-		str += l.first + " = " + l.second->to_string() + "\n";
-	}
-	str += "\nFunctions defined:\n";
-	for(const auto & f : functions){
-		str += f.first + " = " + f.second->to_string() + "\n";
-	}
-	return str;
+	return "";
+	// std::string str;
+	// str += "Locals defined:\n";
+	// for(const auto & l : locals){
+	// 	str += l.first + " = " + l.second->to_string() + "\n";
+	// }
+	// str += "\nFunctions defined:\n";
+	// for(const auto & f : functions){
+	// 	str += f.first + " = " + f.second->to_string() + "\n";
+	// }
+	// return str;
 }

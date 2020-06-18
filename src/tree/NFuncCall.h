@@ -24,6 +24,10 @@ struct NFuncCall : NExpression {
 	virtual void accept(TreeVisitor & visitor) override {
 		visitor.visit(*this);
 	}
+
+	void error(const std::string & msg) override {
+		left.error(msg);
+	}
 };
 
 #endif
