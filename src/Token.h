@@ -27,7 +27,7 @@ enum Operator {
     OP_LPAREN, OP_RPAREN,
     OP_LBRACE, OP_RBRACE,
 
-    OP_COMMA, OP_COLON,
+    OP_COMMA, OP_COLON, OP_DOT,
 
     OP_SEMICOLON
 };
@@ -39,7 +39,7 @@ const std::vector <std::string> operators {
     "(", ")",
     "{", "}",
 
-    ",", ":",
+    ",", ":", ".",
 
     ";"
 };
@@ -81,8 +81,6 @@ typedef std::variant<bool, int, double, std::string, Operator, Keyword> TokenVal
 typedef struct {
     uint32_t line = 0;
     uint32_t column = 0;
-    uint32_t startIndex = 0;
-    uint32_t endIndex = 0;
 } Position;
 
 struct Token {
@@ -95,14 +93,6 @@ struct Token {
         this->type = _type;
 
         switch(type){
-            case T_INT:{
-                val = std::stoi(v);
-                break;
-            }
-            case T_FLOAT:{
-                val = std::stod(v);
-                break;
-            }
             case T_ID:
             case T_STR:{
                 val = v;
@@ -117,6 +107,16 @@ struct Token {
                 break;
             }
         }
+    }
+
+    Token(const int & i){
+        type = T_INT;
+        val = i;
+    }
+
+    Token(const double & d){
+        type = T_FLOAT;
+        val = d;
     }
 
     Token(const Operator & op){
@@ -136,7 +136,7 @@ struct Token {
 
     Token(const TokenType & type){
         this->type = type;
-        val = 0;
+        val = false;
     }
 
     virtual ~Token() = default;
@@ -238,7 +238,6 @@ struct Token {
         }
 
         str += "` at "+ std::to_string(pos.line) +":"+ std::to_string(pos.column);
-
         return str;
     }
 

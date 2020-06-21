@@ -1,8 +1,12 @@
-var a = 1
+var a = 2
+var b = 1
 
-a = if(a){
-	print(a)
-	100
+var c = 10
+
+c = a + b * c
+
+func a(){
+	
 }
 
-print(a)
+a()

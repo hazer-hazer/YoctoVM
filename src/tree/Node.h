@@ -2,82 +2,43 @@
 #define NODE_H
 
 #include "Token.h"
-#include "core/TreeVisitor.h"
+#include "BaseVisitor.h"
 
 struct Node {
 	Node() {}
 	virtual ~Node() = default;
 
-	Position pos;
-
-	virtual std::string to_string() {
-		return "[Node]";
-	}
-
-	virtual void accept(TreeVisitor & visitor) = 0;
-
-	virtual void error(const std::string & msg) = 0;
+	virtual void accept(BaseVisitor & visitor) = 0;
 };
 
-struct NStatement : Node {
-	NStatement() {}
-	virtual ~NStatement() = default;
+struct Statement : Node {
+	Statement() {}
+	virtual ~Statement() = default;
 
-	virtual std::string to_string() override {
-		return "[NStatement]";
-	}
-
-	virtual void accept(TreeVisitor & visitor) = 0;
-
-	virtual void error(const std::string & msg) = 0;
+	virtual void accept(BaseVisitor & visitor) = 0;
 };
 
-struct NExpression : Node {
-	NExpression() {}
-	virtual ~NExpression() = default;
+struct Expression : Node {
+	Expression() {}
+	virtual ~Expression() = default;
 
-	virtual std::string to_string() override {
-		return "[NExpression]";
-	}
-
-	virtual void accept(TreeVisitor & visitor) = 0;
-
-	virtual void error(const std::string & msg) = 0;
+	virtual void accept(BaseVisitor & visitor) = 0;
 };
 
-struct NExpressionStatement : NStatement {
-	NExpression & expression;
+struct ExprStmt : Statement {
+	Expression & expr;
 
-	NExpressionStatement(NExpression & expression)
-		: expression(expression) {}
-	virtual ~NExpressionStatement() = default;
+	ExprStmt(Expression & expr)
+		: expr(expr) {}
+	virtual ~ExprStmt() = default;
 
-	virtual std::string to_string() override {
-		return expression.to_string();
-	}
-
-	virtual void accept(TreeVisitor & visitor) override {
-		expression.accept(visitor);
-	}
-
-	virtual void error(const std::string & msg) override {
-		expression.error(msg);
+	virtual void accept(BaseVisitor & visitor) override {
+		visitor.visit(*this);
 	}
 };
 
 typedef std::vector<Node*> ParseTree;
-
-typedef std::vector<NStatement*> StatementList;
-typedef std::vector<NExpression*> ExpressionList;
-
-inline std::string statements_to_str(const StatementList & stmts){
-	std::string str;
-	for(const auto & stmt : stmts){
-		if(stmt){
-			str += stmt->to_string() + "\n";
-		}
-	}
-	return str;
-}
+typedef std::vector<Statement*> StatementList;
+typedef std::vector<Expression*> ExpressionList;
 
 #endif

@@ -1,24 +1,25 @@
 #include "Lexer.h"
 
-Lexer::Lexer(const std::fstream & input){
-	std::stringstream ss;
-	ss << input.rdbuf();
-	script = ss.str();
-
+Lexer::Lexer(const std::string & script){
+	this->script = script;
 	index = 0;
-	line = 0;
-	column = 0;
+	line = 1;
+	column = 1;
 }
 
 char Lexer::peek(){
 	return script[index];
 }
 
+char Lexer::peekNext(){
+	return script[index + 1];
+}
+
 char Lexer::advance(){
 	index++;
 	if(peek() == '\n'){
 		line++;
-		column = 0;
+		column = 1;
 	}else{
 		column++;
 	}
@@ -26,25 +27,25 @@ char Lexer::advance(){
 }
 
 bool Lexer::eof(){
-	return peek() == '\0';
+	return peek() == '\0' || index >= script.size();
 }
 
 bool Lexer::skip(const char & c){
-	return peek() == '\t' || peek() == ' ';
+	return c == '\t' || c == ' ' || c == '\r';
 }
 
-bool Lexer::is_newline(const char & c){
-	return peek() == '\n';
+bool Lexer::is_nl(const char & c){
+	return c == '\n';
 }
 
 bool Lexer::is_digit(const char & c){
-	return peek() >= '0' && peek() <= '9';
+	return c >= '0' && c <= '9';
 }
 
 bool Lexer::is_id_first(const char & c){
-	return (peek() >= 'a' && peek() <= 'z')
-		|| (peek() >= 'A' && peek() <= 'Z')
-		|| (peek() == '_');
+	return (c >= 'a' && c <= 'z')
+		|| (c >= 'A' && c <= 'Z')
+		|| (c == '_');
 }
 
 bool Lexer::is_id(const char & c){
@@ -55,70 +56,113 @@ bool Lexer::is_quote(const char & c){
 	return c == '"' || c == '\'' || c == '`';
 }
 
-void Lexer::add_token(const TokenType & type, const std::string & val){
-	Token t(type, val);
-
-	t.pos.line = line;
-	t.pos.column = column;
-	t.pos.endIndex = index;
+void Lexer::add_token(Token t){
+	t.pos.line = token_line;
+	t.pos.column = token_column;
 
 	tokens.push_back(t);
+}
+
+void Lexer::add_token(const TokenType & type, const std::string & val){
+	add_token(Token(type, val));
 }
 
 void Lexer::add_token(const Operator & op){
-	Token t(op);
-
-	t.pos.line = line;
-	t.pos.column = column;
-	t.pos.endIndex = index;
-
-	tokens.push_back(t);
+	add_token(Token(op));
 }
 
 void Lexer::add_token(const Keyword & kw){
-	Token t(kw);
-
-	t.pos.line = line;
-	t.pos.column = column;
-	t.pos.endIndex = index;
-
-	tokens.push_back(t);
+	add_token(Token(kw));
 }
 
 void Lexer::add_token(const TokenType & type){
-	Token t(type);
+	add_token(Token(type));
+}
 
-	t.pos.line = line;
-	t.pos.column = column;
-	t.pos.endIndex = index;
+void Lexer::add_token(const int & i){
+	add_token(Token(i));
+}
 
-	tokens.push_back(t);
+void Lexer::add_token(const double & d){
+	add_token(Token(d));
+}
+
+void Lexer::lex_number(){
+	TokenType num_type = T_INT;
+	std::string num;
+
+	if(peek() == '0'){
+		advance();
+		switch(peek()){
+			case 'x':
+			case 'X':{
+				advance();
+				if(!is_digit(peek())){
+					unexpected_error();
+				}
+				do{
+					num += peek();
+				}while(is_digit(advance()));
+
+				add_token(std::stoi(num, 0, 16));
+				return;
+				break;
+			}
+			case 'b':
+			case 'B':{
+				advance();
+				if(!is_digit(peek())){
+					unexpected_error();
+				}
+				do{
+					num += peek();
+				}while(is_digit(advance()));
+
+				add_token(std::stoi(num, 0, 2));
+				return;
+				break;
+			}
+			default: num = "0";
+		}
+	}
+
+	while(is_digit(peek())){
+		num += peek();
+		advance();
+	}
+
+	if(peek() == '.'){
+		num_type = T_FLOAT;
+		num += peek();
+		advance();
+		if(!is_digit(peek())){
+			unexpected_error();
+		}
+		do{
+			num += peek();
+		}while(is_digit(advance()));
+	}
+
+	if(num_type == T_FLOAT){
+		add_token(std::stod(num));
+	}else{
+		add_token(std::stoi(num));
+	}
 }
 
 TokenStream Lexer::lex(){
 
-	std::cout << "Lexing script:\n" << script << std::endl;
-
 	while(!eof()){
+		token_line = line;
+		token_column = column;
+	
 		if(skip(peek())){
 			advance();
-		}else if(is_newline(peek())){
+		}else if(is_nl(peek())){
 			add_token(T_NL);
 			advance();
 		}else if(is_digit(peek())){
-			std::string num(1, peek());
-			while(is_digit(advance())){
-				num += peek();
-			}
-			if(peek() == '.'){
-				do{
-					num += peek();
-				}
-				while(is_digit(advance()));
-				add_token(T_FLOAT, num);
-				continue;
-			}
-			add_token(T_INT, num);
+			lex_number();
 		}else if(is_id_first(peek())){
 			std::string id(1, peek());
 			while(is_id(advance())){
@@ -174,8 +218,26 @@ TokenStream Lexer::lex(){
 					break;
 				}
 				case '/':{
-					add_token(OP_DIV);
-					advance();
+					if(peekNext() == '/'){
+						while(!eof()){
+							advance();
+							if(is_nl(peek())){
+								break;
+							}
+						}
+					}else if(peekNext() == '*'){
+						while(!eof()){
+							advance();
+							if(peek() == '*' && peekNext() == '/'){
+								break;
+							}
+						}
+						advance(); // Skip `*`
+						advance(); // Skip `/`
+					}else{
+						add_token(OP_DIV);
+						advance();
+					}
 					break;
 				}
 				case '%':{
@@ -218,6 +280,15 @@ TokenStream Lexer::lex(){
 					advance();
 					break;
 				}
+				case '.':{
+					if(is_digit(peekNext())){
+						lex_number();
+					}else{
+						add_token(OP_DOT);
+						advance();
+					}
+					break;
+				}
 				default:{
 					unexpected_error();
 				}
@@ -231,10 +302,11 @@ TokenStream Lexer::lex(){
 }
 
 void Lexer::unexpected_error(){
-	throw "Unexpected token `"+ std::string(1, peek()) +
-		  "` at "+ std::to_string(line) +":"+ std::to_string(column);
+	std::string error = "Unexpected token `"+ std::string(1, peek()) + "`";
+	error += " at "+ std::to_string(line) +":"+ std::to_string(column);
+	throw YoctoException(error);
 }
 
 void Lexer::unexpected_eof_error(){
-	throw "Unexpected end of file";
+	throw UnexpectedEofException();
 }

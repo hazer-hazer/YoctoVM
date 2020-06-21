@@ -1,63 +1,23 @@
-#include "src/Lexer.h"
-#include "src/Parser.h"
-#include "src/core/TreeVisitor.h"
-#include "src/core/Function.h"
+#include "src/Yocto.h"
 
-#include "src/core/Int.h"
-#include "src/core/String.h"
-
-#include <fstream>
-#include <iostream>
-#include <exception>
-
-int main(){
-	std::fstream script_file("script.yo");
+int main(int argc, const char * argv[]){
 
 	try{
+		Yocto yocto;
 
-		if(!script_file.is_open()){
-			throw "Unable to open file";
+		if(argc == 1){
+			yocto.run_prompt();
+		}else if(argc == 2){
+			const std::string path(argv[1]);
+			yocto.run_script(path);
+		}else{
+			throw IllegalArgumentException("Expected only one argument");
 		}
 
-		Lexer lexer(script_file);
-		std::cout << "Lexing...\n";
-		TokenStream tokens = lexer.lex();
-
-		std::cout << "Tokens:\n";
-		for(auto & t : tokens){
-			std::cout << t.to_string() << std::endl;
-		}
-
-		Parser parser(tokens);
-		std::cout << "Parsing...\n";
-		ParseTree tree = parser.parse();
-
-		std::cout << "\nTree:\n";
-		for(const auto & n : tree){
-			std::cout << n->to_string() << std::endl;
-		}
-
-		std::cout << "\nEvaluate...\n";
-
-		TreeVisitor visitor;
-
-		std::vector<std::string> params { "o" };
-		BuiltinFunction * print = new BuiltinFunction(params, [&](BuiltinFuncArgs args){
-			std::cout << args["o"]->toString()->get_value() << std::endl;
-			return nullptr;
-		});
-
-		// Before evaluation started visitor scope is global scope
-		visitor.get_scope()->define_func("print", print);
-
-		visitor.visit_tree(tree);
-
-	}catch(const char * e){
-		std::cout << e << std::endl;
-	}catch(const std::string & e){
-		std::cout << e << std::endl;
+	}catch(YoctoException & e){
+		std::cout << "Caught error: " << e.what() << std::endl;
 	}catch(std::exception & e){
-		std::cout << e.what() << std::endl;
+		std::cout << "Uncaught error: " << e.what() << std::endl;
 	}
 
 	return 0;
