@@ -1,12 +1,6 @@
 #include "backend/VM.h"
 
-VM::VM(){
-	reset_stack();
-}
-
-VM::~VM(){
-
-}
+VM::VM(){}
 
 // Chunk
 Value VM::read_const(){
@@ -14,29 +8,24 @@ Value VM::read_const(){
 }
 
 uint8_t VM::read_byte(){
-	// Read next byte
-	return *ip++;
+	return chunk->code[current++];
 }
 
 // Stack
-void VM::reset_stack(){
-	stack_top = stack;
-}
-
 void VM::push(Value val){
-	*stack_top = value;
-	stack_top++;
+	stack.push(val);
 }
 
 Value VM::pop(){
-	stack_top--;
-	return *stack_top;
+	Value top = stack.top();
+	stack.pop();
+	return top;	
 }
 
 // Interpretation
 InterpretResult VM::interpret(Chunk * chunk){
 	this->chunk = chunk;
-	ip = chunk->code;
+	current = 0;
 	return run();
 }
 
@@ -45,9 +34,15 @@ InterpretResult VM::run(){
 		switch(read_byte()){
 			case OP_CONST:{
 				Value constant = read_const();
+				push(constant);
+				break;
+			}
+			case OP_NEGATE:{
+				push(-pop());
 				break;
 			}
 			case OP_RETURN:{
+				std::cout << pop();
 				return INTERPRET_OK;
 			}
 		}

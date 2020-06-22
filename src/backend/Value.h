@@ -2,20 +2,16 @@
 #define VALUE_H
 
 #include <iostream>
-#include "backend/memory.h"
+#include <vector>
 
 typedef double Value;
 
 struct ValueArray {
-	int capacity;
-	int count;
-	Value * values;
+	std::vector<Value> values;
 
 	ValueArray();
 	virtual ~ValueArray() = default;
 
-	void init();
-	void clear();
 	void write(Value val);
 };
 

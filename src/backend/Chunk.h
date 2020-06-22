@@ -3,27 +3,29 @@
 
 #include <iostream>
 #include <iomanip>
+#include <vector>
 
 #include "backend/Value.h"
 
 typedef enum {
 	OP_CONST,
-	OP_RETURN
+	OP_RETURN,
+	OP_NEGATE,
+	OP_ADD,
+	OP_SUB,
+	OP_MUL,
+	OP_DIV
 } OpCode;
 
 struct Chunk {
-	int count;
-	int capacity;
-	uint8_t * code;
-	int * lines;
+	std::vector<uint8_t> code;
+	std::vector<int> lines;
 
 	ValueArray constants;
 
 	Chunk();
 	virtual ~Chunk() = default;
 
-	void init();
-	void clear();
 	void write(uint8_t byte, int line);
 	int add_const(Value val);
 

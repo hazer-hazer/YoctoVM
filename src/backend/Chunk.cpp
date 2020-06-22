@@ -1,45 +1,22 @@
 #include "backend/Chunk.h"
-#include "backend/memory.h"
 
-Chunk::Chunk(){
-	init();
-}
-
-void Chunk::clear(){
-	FREE_ARRAY(uint8_t, code, capacity);
-	FREE_ARRAY(int, lines, capacity);
-	init();
-	constants.clear();
-}
-
-void Chunk::init(){
-	count = 0;
-	capacity = 0;
-	code = NULL;
-}
+Chunk::Chunk(){}
 
 void Chunk::write(uint8_t byte, int line){
-	if(capacity < count + 1){
-		int oldCapacity = capacity;
-		capacity = GROW_CAPACITY(oldCapacity);
-		code = GROW_ARRAY(code, uint8_t, oldCapacity, capacity);
-		lines = GROW_ARRAY(lines, int, oldCapacity, capacity);
-	}
-	code[count] = byte;
-	lines[count] = line;
-	count++;
+	code.push_back(byte);
+	lines.push_back(line);
 }
 
 int Chunk::add_const(Value val){
 	constants.write(val);
-	return constants.count - 1;
+	return constants.values.size() - 1;
 }
 
 ///////////
 // Debug //
 ///////////
 void Chunk::disasm(){
-	for(int offset = 0; offset < count;){
+	for(int offset = 0; offset < code.size();){
 		offset = disasm_instruction(offset);
 	}
 }
@@ -63,6 +40,10 @@ int Chunk::disasm_instruction(int offset){
 		}
 		case OP_CONST:{
 			return disasm_const(offset);
+			break;
+		}
+		case OP_NEGATE:{
+			std::cout << "OP_NEGATE";
 			break;
 		}
 		default:{

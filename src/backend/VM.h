@@ -1,9 +1,9 @@
 #ifndef VM_H
 #define VM_H
 
+#include <iostream>
+#include <stack>
 #include "backend/Chunk.h"
-
-#define STACK_MAX 256
 
 typedef enum {
 	INTERPRET_OK,
@@ -14,7 +14,7 @@ typedef enum {
 class VM {
 public:
 	VM();
-	~VM();
+	virtual ~VM() = default;
 
 	InterpretResult interpret(Chunk * chunk);
 	InterpretResult run();
@@ -22,14 +22,12 @@ public:
 private:
 	// Chunk
 	Chunk * chunk;
-	uint8_t * ip;
+	size_t current;
 	uint8_t read_byte();
 	Value read_const();
 
 	// Stack
-	Value stack[STACK_MAX];
-	Value * stack_top;
-	void reset_stack();
+	std::stack<Value> stack;
 	void push(Value val);
 	Value pop();
 };
