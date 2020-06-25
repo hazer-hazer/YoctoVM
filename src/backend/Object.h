@@ -1,7 +1,11 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-struct Object {
+class Object {
+public:
+	Object(){}
+	virtual ~Object() = default;
+
 	
 };
 
