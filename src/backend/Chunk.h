@@ -7,32 +7,58 @@
 
 #include "backend/Value.h"
 
-typedef enum {
-	OP_CONST,
-	OP_RETURN,
-	OP_NEGATE,
-	OP_ADD,
-	OP_SUB,
-	OP_MUL,
-	OP_DIV
-} OpCode;
+enum class OpCode: uint8_t {
+	CONST_NULL,
+	CONSTANT,
+
+	POP,
+	SETUP_LOOP,
+
+	DEFINE_GLOBAL,
+	GET_GLOBAL,
+	SET_GLOBAL,
+	GET_LOCAL,
+	SET_LOCAL,
+
+	JUMP,
+	JUMP_IF_FALSE,
+
+	// OP_NEGATE,
+	// OP_ADD,
+	// OP_SUB,
+	// OP_MUL,
+	// OP_DIV,
+	
+	RETURN
+};
 
 struct Chunk {
 	std::vector<uint8_t> code;
-	std::vector<int> lines;
-
-	ValueArray constants;
+	std::vector<Value> constants;
 
 	Chunk();
 	virtual ~Chunk() = default;
 
-	void write(uint8_t byte, int line);
-	int add_const(Value val);
+	uint8_t get_byte(int offset) const {
+		return code[offset];
+	}
+	void set_byte(int offset, uint8_t value) {
+		code[offset] = value;
+	}
+	Value get_const(int constant) const {
+		return constants[constant];
+	}
+
+	void write(uint8_t byte);
+	void write(OpCode opcode);
+	unsigned long add_const(Value val);
+	int count() {
+		return static_cast<int>(code.size());
+	}
 
 	// Debug
-	void disasm();
+	void disasm(const std::string & chunk_name);
 	int disasm_instruction(int offset);
-	int disasm_const(int offset);
 };
 
 #endif

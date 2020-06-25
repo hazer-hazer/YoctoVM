@@ -12,8 +12,9 @@ struct Block;
 struct FuncDecl;
 struct FuncCall;
 struct InfixOp;
+struct IfExpression;
 
-typedef std::vector<Node*> ParseTree;
+using ParseTree = std::vector<Node*>;
 
 class BaseVisitor {
 public:
@@ -29,6 +30,7 @@ public:
 	virtual void visit(FuncDecl & func_decl) = 0;
 	virtual void visit(FuncCall & func_call) = 0;
 	virtual void visit(InfixOp & infix_op) = 0;
+	virtual void visit(IfExpression & if_expr) = 0;
 };
 
 #endif

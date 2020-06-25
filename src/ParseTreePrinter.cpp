@@ -11,6 +11,7 @@ void ParseTreePrinter::print_indent(){
 }
 
 void ParseTreePrinter::visit(const ParseTree & tree){
+	std::cout << "print tree\n";
 	indent = 0;
 	for(int i = 0; i < tree.size(); i++){
 		tree[i]->accept(*this);
@@ -27,10 +28,10 @@ void ParseTreePrinter::visit(ExprStmt & expr_stmt){
 
 void ParseTreePrinter::visit(Literal & literal){
 	switch(literal.token.type){
-		case T_BOOL: std::cout << literal.token.Bool(); break;
-		case T_INT: std::cout << literal.token.Int(); break;
-		case T_FLOAT: std::cout << literal.token.Float(); break;
-		case T_STR: std::cout << literal.token.String(); break;
+		case TokenType::T_BOOL: std::cout << literal.token.Bool(); break;
+		case TokenType::T_INT: std::cout << literal.token.Int(); break;
+		case TokenType::T_FLOAT: std::cout << literal.token.Float(); break;
+		case TokenType::T_STR: std::cout << literal.token.String(); break;
 	}
 }
 
@@ -40,9 +41,9 @@ void ParseTreePrinter::visit(Identifier & id){
 
 void ParseTreePrinter::visit(VarDecl & var_decl){
 	print_indent();
-	if(var_decl.decl == VAR){
+	if(var_decl.decl == VarDeclType::VAR){
 		std::cout << "var";
-	}else if(var_decl.decl == VAL){
+	}else if(var_decl.decl == VarDeclType::VAL){
 		std::cout << "val";
 	}
 	std::cout << " ";
@@ -106,4 +107,26 @@ void ParseTreePrinter::visit(InfixOp & infix_op){
 	std::cout << " " << op_to_str(infix_op.op.op()) << " ";
 	infix_op.right.accept(*this);
 	std::cout << ")";
+}
+
+void ParseTreePrinter::visit(IfExpression & if_expr){
+	bool first = true;
+	for(const auto & cond : if_expr.conditions){
+		if(first){
+			std::cout << "if";
+			first = false;
+		}else{
+			std::cout << "elif";
+		}
+		std::cout << " (";
+		cond.cond.accept(*this);
+		std::cout << ") ";
+		cond.body.accept(*this);
+	}
+
+	if(if_expr.Else){
+		std::cout << " else {\n";
+		if_expr.Else->accept(*this);
+		std::cout << "\n}";
+	}
 }

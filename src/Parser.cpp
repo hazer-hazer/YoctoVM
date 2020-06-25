@@ -17,7 +17,7 @@ Token Parser::advance(){
 // Chekers //
 /////////////
 bool Parser::eof(){
-	return is_typeof(T_EOF);
+	return is_typeof(TokenType::T_EOF);
 }
 
 bool Parser::is_typeof(const TokenType & type){
@@ -25,19 +25,19 @@ bool Parser::is_typeof(const TokenType & type){
 }
 
 bool Parser::is_nl(){
-	return is_typeof(T_NL);
+	return is_typeof(TokenType::T_NL);
 }
 
 bool Parser::is_op(const Operator & op){
-	return is_typeof(T_OP) && peek().op() == op;
+	return is_typeof(TokenType::T_OP) && peek().op() == op;
 }
 
 bool Parser::is_kw(const Keyword & kw){
-	return is_typeof(T_KW) && peek().kw() == kw;
+	return is_typeof(TokenType::T_KW) && peek().kw() == kw;
 }
 
 bool Parser::is_infix_op(){
-	return is_typeof(T_OP) && get_infix_prec(peek().op()) != PREC_NONE;
+	return is_typeof(TokenType::T_OP) && get_infix_prec(peek().op()) != static_cast<int>(InfixPrec::NONE);
 }
 
 //////////////
@@ -54,10 +54,10 @@ void Parser::skip_nl(const bool & optional){
 }
 
 void Parser::skip_semis(){
-	if(is_nl() || is_op(OP_SEMICOLON)){
+	if(is_nl() || is_op(Operator::SEMICOLON)){
 		do{
 			advance();
-		}while(is_nl() || is_op(OP_SEMICOLON));
+		}while(is_nl() || is_op(Operator::SEMICOLON));
 	}else{
 		expected_error("`;` or new line");
 	}
@@ -110,15 +110,16 @@ ParseTree Parser::parse(){
 }
 
 Statement * Parser::parse_statement(){
+	std::cout << "parse_statement: " << peek().to_string() << std::endl;
 
-	if(is_typeof(T_KW)){
+	if(is_typeof(TokenType::T_KW)){
 		switch(peek().kw()){
-			case KW_VAR:
-			case KW_VAL:{
+			case Keyword::KW_VAR:
+			case Keyword::KW_VAL:{
 				return parse_var_decl();
 				break;
 			}
-			case KW_FUNC:{
+			case Keyword::KW_FUNC:{
 				return parse_func_decl();
 				break;
 			}
@@ -129,16 +130,14 @@ Statement * Parser::parse_statement(){
 }
 
 Expression * Parser::parse_expression(){
+	std::cout << "parse_expression: " << peek().to_string() << std::endl;
 	Expression * left = parse_atom();
 
 	while(!eof()){
-		if(is_op(OP_LPAREN)){
+		if(is_op(Operator::LPAREN)){
 			left = parse_func_call(left);
-		}else if(is_typeof(T_OP)){
-			// Check for infix operator
-			if(is_infix_op()){
-				return parse_infix(left, 0);
-			}
+		}else if(is_infix_op()){
+			return parse_infix(left, 0);
 			// TODO: Add else if postfix (and break!)
 		}else{
 			break;
@@ -149,14 +148,19 @@ Expression * Parser::parse_expression(){
 }
 
 Expression * Parser::parse_atom(){
-	if(is_typeof(T_INT) || is_typeof(T_FLOAT) || is_typeof(T_STR) || is_typeof(T_BOOL)){
+	std::cout << "parse_atom: " << peek().to_string() << std::endl;
+	if(is_typeof(TokenType::T_INT) || is_typeof(TokenType::T_FLOAT) || is_typeof(TokenType::T_STR) || is_typeof(TokenType::T_BOOL)){
 		Token current = peek();
 		advance();
 		return new Literal(current);
 	}
 
-	if(is_typeof(T_ID)){
+	if(is_typeof(TokenType::T_ID)){
 		return parse_id();
+	}
+
+	if(is_kw(Keyword::KW_IF)){
+		return parse_if_expr();
 	}
 
 	unexpected_error();
@@ -164,7 +168,7 @@ Expression * Parser::parse_atom(){
 }
 
 Identifier * Parser::parse_id(){
-	if(!is_typeof(T_ID)){
+	if(!is_typeof(TokenType::T_ID)){
 		expected_error("identifier");
 	}
 
@@ -174,13 +178,14 @@ Identifier * Parser::parse_id(){
 }
 
 Block * Parser::parse_block(){
-	skip_op(OP_LBRACE, false, true);
+	std::cout << "parse block: " << peek().to_string() << std::endl;
+	skip_op(Operator::LBRACE, false, true);
 
 	StatementList stmts;
 	
 	bool first = true;
 	while(!eof()){
-		if(is_op(OP_RBRACE)){
+		if(is_op(Operator::RBRACE)){
 			break;
 		}
 		if(first){
@@ -188,17 +193,18 @@ Block * Parser::parse_block(){
 		}else{
 			skip_semis();
 		}
-		if(is_op(OP_RBRACE)){
+		if(is_op(Operator::RBRACE)){
 			break;
 		}
 		stmts.push_back(parse_statement());
 	}
-	skip_op(OP_RBRACE, true, false);
+	skip_op(Operator::RBRACE, true, false);
 
 	return new Block(stmts);
 }
 
 Expression * Parser::parse_infix(Expression * left, int prec){
+	std::cout << "parse infix: " << peek().to_string() << std::endl;
 	if(is_infix_op()){
 		Token op_token = peek();
 		int right_prec = get_infix_prec(op_token.op());
@@ -213,11 +219,12 @@ Expression * Parser::parse_infix(Expression * left, int prec){
 }
 
 VarDecl * Parser::parse_var_decl(){
-	VarDeclType decl = VAR;
-	if(is_kw(KW_VAR)){
-		decl = VAR;
-	}else if(is_kw(KW_VAL)){
-		decl = VAL;
+	std::cout << "parse VarDecl: " << peek().to_string() << std::endl;
+	VarDeclType decl = VarDeclType::VAR;
+	if(is_kw(Keyword::KW_VAR)){
+		decl = VarDeclType::VAR;
+	}else if(is_kw(Keyword::KW_VAL)){
+		decl = VarDeclType::VAL;
 	}else{
 		expected_error("`var` or `val` keyword");
 	}
@@ -226,8 +233,8 @@ VarDecl * Parser::parse_var_decl(){
 	Identifier * id = parse_id();
 
 	Expression * assign_expr = nullptr;
-	if(is_op(OP_ASSIGN)){
-		skip_op(OP_ASSIGN, true, true);
+	if(is_op(Operator::ASSIGN)){
+		skip_op(Operator::ASSIGN, true, true);
 		assign_expr = parse_expression();
 	}
 
@@ -235,28 +242,29 @@ VarDecl * Parser::parse_var_decl(){
 }
 
 FuncDecl * Parser::parse_func_decl(){
-	skip_kw(KW_FUNC, false, true);
+	std::cout << "parse FuncDecl: " << peek().to_string() << std::endl;
+	skip_kw(Keyword::KW_FUNC, false, true);
 
 	Identifier * id = parse_id();
 
-	skip_op(OP_LPAREN, true, true);
+	skip_op(Operator::LPAREN, true, true);
 	
 	ParamList params;
 
 	bool first = true;
 	while(!eof()){
-		if(is_op(OP_RPAREN)){
+		if(is_op(Operator::RPAREN)){
 			break;
 		}
 		if(first){
 			first = false;
 		}else{
-			skip_op(OP_COMMA, true, true);
+			skip_op(Operator::COMMA, true, true);
 		}
 		Identifier * param_id = parse_id();
 		params.push_back({*param_id});
 	}
-	skip_op(OP_RPAREN, true, true);
+	skip_op(Operator::RPAREN, true, true);
 
 	Block * body = parse_block();
 
@@ -264,26 +272,68 @@ FuncDecl * Parser::parse_func_decl(){
 }
 
 FuncCall * Parser::parse_func_call(Expression * left){
-	skip_op(OP_LPAREN, true, true);
+	std::cout << "parse FuncCall: " << peek().to_string() << std::endl;
+	skip_op(Operator::LPAREN, true, true);
 
 	ExpressionList args;
 
 	bool first = true;
 	while(!eof()){
-		if(is_op(OP_RPAREN)){
+		if(is_op(Operator::RPAREN)){
 			break;
 		}
 		if(first){
 			first = false;
 		}else{
-			skip_op(OP_COMMA, true, true);
+			skip_op(Operator::COMMA, true, true);
 		}
 		args.push_back(parse_expression());
 	}
 
-	skip_op(OP_RPAREN, true, true);
+	skip_op(Operator::RPAREN, true, true);
 
 	return new FuncCall(*left, args);
+}
+
+IfExpression * Parser::parse_if_expr(){
+	std::cout << "parse if: " << peek().to_string() << std::endl;
+	ConditionList conditions;
+
+	// Note: do-while because there always must first condition-struct (`if`)
+	
+	// Parse if
+	skip_kw(Keyword::KW_IF, true, true);
+	skip_op(Operator::LPAREN, true, true);
+	Expression * IfCond = parse_expression();
+	skip_op(Operator::RPAREN, true, true);
+	Block * IfBody = parse_block();
+
+	conditions.push_back(ConditionStructure(*IfCond, *IfBody));
+
+	while(!eof()){
+		if(is_kw(Keyword::KW_ELIF)){
+			std::cout << "elif found\n";
+			skip_kw(Keyword::KW_ELIF, true, true);
+		}else{
+			std::cout << "end condition\n";
+			break;
+		}
+
+		skip_op(Operator::LPAREN, true, true);
+		Expression * cond = parse_expression();
+		skip_op(Operator::RPAREN, true, true);
+		Block * body = parse_block();
+
+		conditions.push_back(ConditionStructure(*cond, *body));
+	}
+
+	Block * Else = nullptr;
+	if(is_kw(Keyword::KW_ELSE)){
+		skip_kw(Keyword::KW_ELSE, true, true);
+		Else = parse_block();
+	}
+
+	return new IfExpression(conditions, Else);
 }
 
 ////////////

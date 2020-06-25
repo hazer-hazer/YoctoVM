@@ -9,7 +9,7 @@
 
 // TODO: Add types
 
-typedef enum{VAR, VAL} VarDeclType;
+enum class VarDeclType { VAR, VAL };
 
 struct VarDecl : Statement {
 	VarDeclType decl;

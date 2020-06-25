@@ -9,7 +9,7 @@ struct FuncParam {
 	Identifier & id;
 };
 
-typedef std::vector<FuncParam> ParamList;
+using ParamList = std::vector<FuncParam>;
 
 struct FuncDecl : Statement {
 	Identifier & id;

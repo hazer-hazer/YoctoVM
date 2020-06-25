@@ -8,6 +8,10 @@ struct Identifier : Expression {
 
 	Identifier(const Token & token) : token(token) {}
 
+	std::string get_name(){
+		return token.String();
+	}
+
 	void accept(BaseVisitor & visitor) override {
 		visitor.visit(*this);
 	}

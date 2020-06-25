@@ -3,43 +3,48 @@
 
 #include "tree/Node.h"
 
-typedef enum {
-	PREC_ZERO,
-	PREC_ASSIGN,
-	// PREC_OR,
-	// PREC_AND,
-	// PREC_BIT_OR,
-	// PREC_BIT_AND,
-	// PREC_EQ,
-	// PREC_CMP,
-	// PREC_SH,
-	// PREC_RANGE,
-	PREC_TERM,
-	PREC_FACTOR,
-	// PREC_EXP,
-	// PREC_ACCESS,
-	PREC_NONE
-} InfixPrec;
+enum class InfixPrec {
+	ZERO,
+	ASSIGN,
+	// OR,
+	// AND,
+	// BIT_OR,
+	// BIT_AND,
+	// EQ,
+	// CMP,
+	// SH,
+	// RANGE,
+	TERM,
+	FACTOR,
+	// EXP,
+	// ACCESS,
+	NONE
+};
 
 inline int get_infix_prec(const Operator & op){
+	InfixPrec prec;
 	switch(op){
-		case OP_ASSIGN:{
-			return PREC_ASSIGN;
+		case Operator::ASSIGN:{
+			prec = InfixPrec::ASSIGN;
 			break;
 		}
-		case OP_ADD:
-		case OP_SUB:{
-			return PREC_TERM;
+		case Operator::ADD:
+		case Operator::SUB:{
+			prec = InfixPrec::TERM;
 			break;
 		}
-		case OP_MUL:
-		case OP_DIV:
-		case OP_MOD:{
-			return PREC_FACTOR;
+		case Operator::MUL:
+		case Operator::DIV:
+		case Operator::MOD:{
+			prec = InfixPrec::FACTOR;
 			break;
+		}
+		default:{
+			prec = InfixPrec::NONE;
 		}
 	}
-	return PREC_NONE;
+
+	return static_cast<int>(prec);
 }
 
 struct InfixOp : Expression {

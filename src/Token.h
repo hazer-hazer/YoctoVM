@@ -6,7 +6,16 @@
 #include <vector>
 #include <string>
 
-enum TokenType {
+// Note: In Yocto floating-point numbers are doubles
+enum class Operator;
+enum class Keyword;
+using TokenVal = std::variant<bool, int, double, std::string, Operator, Keyword>;
+
+struct Token;
+using TokenStream = std::vector<Token>;
+
+enum class TokenType {
+    T_NULL,
     T_BOOL,
     T_INT,
     T_FLOAT,
@@ -18,18 +27,18 @@ enum TokenType {
     T_EOF
 };
 
-enum Operator {
-    OP_ASSIGN,
+enum class Operator {
+    ASSIGN,
 
-    OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_MOD,
+    ADD, SUB, MUL, DIV, MOD,
 
     // Punctuations
-    OP_LPAREN, OP_RPAREN,
-    OP_LBRACE, OP_RBRACE,
+    LPAREN, RPAREN,
+    LBRACE, RBRACE,
 
-    OP_COMMA, OP_COLON, OP_DOT,
+    COMMA, COLON, DOT,
 
-    OP_SEMICOLON
+    SEMICOLON
 };
 
 const std::vector <std::string> operators {
@@ -48,20 +57,28 @@ inline std::string op_to_str(const Operator & op){
     return operators.at(static_cast<int>(op));
 }
 
-enum Keyword {
-    KW_IF, KW_ELIF, KW_ELSE,
-    KW_VAR, KW_VAL,
+enum class Keyword {
+    KW_NULL,
     KW_TRUE, KW_FALSE,
+    KW_VAR, KW_VAL,
     KW_FUNC,
 
+    KW_IF, KW_ELIF, KW_ELSE,
+    
     KW_MAX
 };
 
+// Overload operator less-than to check if identifier is Keyword
+inline bool operator<(Keyword kwl, Keyword kwr){
+    return static_cast<int>(kwl) < static_cast<int>(kwr);
+}
+
 const std::vector <std::string> keywords {
-    "if", "elif", "else",
-    "var", "val",
+    "null",
     "true", "false",
-    "func"
+    "var", "val",
+    "func",
+    "if", "elif", "else"
 };
 
 inline Keyword str_to_kw(const std::string & str){
@@ -74,14 +91,10 @@ inline std::string kw_to_str(const Keyword & kw){
     return keywords.at(static_cast<int>(kw));
 }
 
-// Note: In Yocto floating-point numbers are doubles
-
-typedef std::variant<bool, int, double, std::string, Operator, Keyword> TokenVal;
-
-typedef struct {
+struct Position {
     uint32_t line = 0;
     uint32_t column = 0;
-} Position;
+};
 
 struct Token {
     TokenType type;
@@ -93,16 +106,16 @@ struct Token {
         this->type = _type;
 
         switch(type){
-            case T_ID:
-            case T_STR:{
+            case TokenType::T_ID:
+            case TokenType::T_STR:{
                 val = v;
                 break;
             }
-            case T_NL:{
+            case TokenType::T_NL:{
                 val = 0;
                 break;
             }
-            case T_EOF:{
+            case TokenType::T_EOF:{
                 val = 0;
                 break;
             }
@@ -110,27 +123,36 @@ struct Token {
     }
 
     Token(const int & i){
-        type = T_INT;
+        type = TokenType::T_INT;
         val = i;
     }
 
     Token(const double & d){
-        type = T_FLOAT;
+        type = TokenType::T_FLOAT;
         val = d;
     }
 
     Token(const Operator & op){
-        type = T_OP;
+        type = TokenType::T_OP;
         val = op;
     }
 
     Token(const Keyword & kw){
-        if(kw == KW_TRUE || kw == KW_FALSE){
-            type = T_BOOL;
-            val = kw == KW_TRUE;
-        }else{
-            type = T_KW;
-            val = kw;
+        switch(kw){
+            case Keyword::KW_TRUE:
+            case Keyword::KW_FALSE:{
+                type = TokenType::T_BOOL;
+                val = kw == Keyword::KW_TRUE;
+                break;
+            }
+            case Keyword::KW_NULL:{
+                type = TokenType::T_NULL;
+                val = 0;
+            }
+            default:{
+                type = TokenType::T_KW;
+                val = kw;
+            }
         }
     }
 
@@ -169,39 +191,39 @@ struct Token {
         std::string str;
 
         switch(type){
-            case T_BOOL:{
+            case TokenType::T_BOOL:{
                 str += "bool";
                 break;
             }
-            case T_INT:{
+            case TokenType::T_INT:{
                 str += "int";
                 break;
             }
-            case T_FLOAT:{
+            case TokenType::T_FLOAT:{
                 str += "float";
                 break;
             }
-            case T_ID:{
+            case TokenType::T_ID:{
                 str += "identifier";
                 break;
             }
-            case T_STR:{
+            case TokenType::T_STR:{
                 str += "string";
                 break;
             }
-            case T_OP:{
+            case TokenType::T_OP:{
                 str += "operator";
                 break;
             }
-            case T_KW:{
+            case TokenType::T_KW:{
                 str += "keyword";
                 break;
             }
-            case T_NL:{
+            case TokenType::T_NL:{
                 str += "[new line]";
                 break;
             }
-            case T_EOF:{
+            case TokenType::T_EOF:{
                 str += "[EOF]";
                 break;
             }
@@ -210,29 +232,29 @@ struct Token {
         // TODO: Fix quote for empty values
         str += " `";
         switch(type){
-            case T_BOOL:{
+            case TokenType::T_BOOL:{
                 str += std::to_string(Bool());
                 break;
             }
-            case T_INT:{
+            case TokenType::T_INT:{
                 str += std::to_string(Int());
                 break;
             }
-            case T_FLOAT:{
+            case TokenType::T_FLOAT:{
                 str += std::to_string(Float());
                 break;
             }
-            case T_ID:
-            case T_STR:{
+            case TokenType::T_ID:
+            case TokenType::T_STR:{
                 str += String();
                 break;
             }
-            case T_OP:{
-                str += operators.at(op());
+            case TokenType::T_OP:{
+                str += op_to_str(op());
                 break;
             }
-            case T_KW:{
-                str += keywords.at(kw());
+            case TokenType::T_KW:{
+                str += kw_to_str(kw());
                 break;
             }
         }
@@ -245,7 +267,5 @@ struct Token {
         throw msg + " " + to_string();
     }
 };
-
-typedef std::vector<Token> TokenStream;
 
 #endif

@@ -4,6 +4,15 @@
 #include "Token.h"
 #include "BaseVisitor.h"
 
+struct Node;
+using ParseTree = std::vector<Node*>;
+
+struct Statement;
+using StatementList = std::vector<Statement*>;
+
+struct Expression;
+using ExpressionList = std::vector<Expression*>;
+
 struct Node {
 	Node() {}
 	virtual ~Node() = default;
@@ -36,9 +45,5 @@ struct ExprStmt : Statement {
 		visitor.visit(*this);
 	}
 };
-
-typedef std::vector<Node*> ParseTree;
-typedef std::vector<Statement*> StatementList;
-typedef std::vector<Expression*> ExpressionList;
 
 #endif

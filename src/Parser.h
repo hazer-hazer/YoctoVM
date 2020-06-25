@@ -49,6 +49,7 @@ private:
 	VarDecl * parse_var_decl();
 	FuncDecl * parse_func_decl();
 	FuncCall * parse_func_call(Expression * left);
+	IfExpression * parse_if_expr();
 
 	// Errors
 	void error(const std::string & msg);

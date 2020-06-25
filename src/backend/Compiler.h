@@ -2,11 +2,20 @@
 #define COMPILER_H
 
 #include "BaseVisitor.h"
-#include "nodes.h"
+#include "tree/nodes.h"
+#include "backend/Chunk.h"
+
+#define UINT8_COUNT (UINT8_MAX + 1)
+
+struct Local {
+	std::string name;
+	int depth;
+	Local(const std::string & name, int depth) : name(name), depth(depth) {}
+};
 
 class Compiler : public BaseVisitor {
 public:
-	Compiler();
+	Compiler(Chunk & chunk);
 	virtual ~Compiler() = default;
 
 	void visit(const ParseTree & tree) override;
@@ -18,9 +27,42 @@ public:
 	void visit(FuncDecl & func_decl) override;
 	void visit(FuncCall & func_call) override;
 	void visit(InfixOp & infix_op) override;
+	void visit(IfExpression & if_expr) override;
 
 private:
-	
+	Chunk & chunk;
+	std::vector<Local> locals;
+
+	// Emit
+	void emit(uint8_t byte);
+	void emit(OpCode op);
+	void emit(OpCode op, uint8_t byte);
+	void emit(OpCode op1, OpCode op2);
+
+	// JUMP
+	int emit_jump(OpCode op);
+	void patch_jump(int offset);
+
+	// CONST
+	void emit_const(Value val);
+	uint8_t make_const(Value val);
+	uint8_t make_id_const(const std::string & name);
+
+	// LOOP
+	void emit_loop(int loop_start);
+
+	// Scope
+	int scope_depth;
+	void enter_scope();
+	void exit_scope();
+
+	bool is_local();
+	void add_local(const std::string & name);
+	void mark_inited();
+	int resolve_local(const std::string & name);
+
+	void declare_var(const std::string & name);
+
 };
 
 #endif

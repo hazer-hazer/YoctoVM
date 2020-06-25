@@ -33,8 +33,8 @@ void Yocto::run_script(const std::string & path){
 void Yocto::run(const std::string & script){	
 	// std::cout << "Run script:\n" << script << std::endl;
 
+	// Lexing
 	Lexer lexer(script);
-
 	auto lexer_start = std::chrono::high_resolution_clock::now();
 	TokenStream tokens = lexer.lex();
 	auto lexer_end = std::chrono::high_resolution_clock::now();
@@ -44,18 +44,23 @@ void Yocto::run(const std::string & script){
 		std::cout << t.to_string() << std::endl;
 	}
 
+	// Parse tokens
 	Parser parser(tokens);
-
 	auto parser_start = std::chrono::high_resolution_clock::now();
 	ParseTree tree = parser.parse();
 	auto parser_end = std::chrono::high_resolution_clock::now();
 
+	// Print tree
 	ParseTreePrinter printer;
-
 	std::cout << "\nParse Tree:\n";
 	printer.visit(tree);
-
 	std::cout << std::endl;
+
+	// Compile AST
+	std::cout << "Compile...\n";
+	auto chunk = Chunk();
+	Compiler compiler(chunk);
+	compiler.visit(tree);
 	
 	auto lexer_duration = std::chrono::duration<double>(lexer_end - lexer_start).count();
 	std::cout << "Lexing was done in: " << lexer_duration << "s" << std::endl;

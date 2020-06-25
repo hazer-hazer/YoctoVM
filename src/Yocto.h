@@ -10,6 +10,7 @@
 #include "Lexer.h"
 #include "Parser.h"
 #include "ParseTreePrinter.h"
+#include "backend/Compiler.h"
 
 class Yocto {
 public:

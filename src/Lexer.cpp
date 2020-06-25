@@ -42,6 +42,12 @@ bool Lexer::is_digit(const char & c){
 	return c >= '0' && c <= '9';
 }
 
+bool Lexer::is_hex(const char & c){
+	return is_digit(c)
+		|| (c >= 'a' && c <= 'f')
+		|| (c >= 'A' && c <= 'F');
+}
+
 bool Lexer::is_id_first(const char & c){
 	return (c >= 'a' && c <= 'z')
 		|| (c >= 'A' && c <= 'Z')
@@ -88,7 +94,7 @@ void Lexer::add_token(const double & d){
 }
 
 void Lexer::lex_number(){
-	TokenType num_type = T_INT;
+	TokenType num_type = TokenType::T_INT;
 	std::string num;
 
 	if(peek() == '0'){
@@ -97,12 +103,12 @@ void Lexer::lex_number(){
 			case 'x':
 			case 'X':{
 				advance();
-				if(!is_digit(peek())){
+				if(!is_hex(peek())){
 					unexpected_error();
 				}
 				do{
 					num += peek();
-				}while(is_digit(advance()));
+				}while(is_hex(advance()));
 
 				add_token(std::stoi(num, 0, 16));
 				return;
@@ -126,13 +132,15 @@ void Lexer::lex_number(){
 		}
 	}
 
+	// TODO: Fix floating hex numbers
+
 	while(is_digit(peek())){
 		num += peek();
 		advance();
 	}
 
 	if(peek() == '.'){
-		num_type = T_FLOAT;
+		num_type = TokenType::T_FLOAT;
 		num += peek();
 		advance();
 		if(!is_digit(peek())){
@@ -143,7 +151,7 @@ void Lexer::lex_number(){
 		}while(is_digit(advance()));
 	}
 
-	if(num_type == T_FLOAT){
+	if(num_type == TokenType::T_FLOAT){
 		add_token(std::stod(num));
 	}else{
 		add_token(std::stoi(num));
@@ -159,7 +167,7 @@ TokenStream Lexer::lex(){
 		if(skip(peek())){
 			advance();
 		}else if(is_nl(peek())){
-			add_token(T_NL);
+			add_token(TokenType::T_NL);
 			advance();
 		}else if(is_digit(peek())){
 			lex_number();
@@ -171,10 +179,10 @@ TokenStream Lexer::lex(){
 
 			Keyword kw = str_to_kw(id);
 
-			if(kw < KW_MAX){
+			if(kw < Keyword::KW_MAX){
 				add_token(kw);
 			}else{
-				add_token(T_ID, id);
+				add_token(TokenType::T_ID, id);
 			}
 		}else if(is_quote(peek())){
 			const char quote = peek();
@@ -193,27 +201,27 @@ TokenStream Lexer::lex(){
 			if(peek() != quote){
 				unexpected_error();
 			}
-			add_token(T_STR, str);
+			add_token(TokenType::T_STR, str);
 			advance();
 		}else{
 			switch(peek()){
 				case '=':{
-					add_token(OP_ASSIGN);
+					add_token(Operator::ASSIGN);
 					advance();
 					break;
 				}
 				case '+':{
-					add_token(OP_ADD);
+					add_token(Operator::ADD);
 					advance();
 					break;
 				}
 				case '-':{
-					add_token(OP_SUB);
+					add_token(Operator::SUB);
 					advance();
 					break;
 				}
 				case '*':{
-					add_token(OP_MUL);
+					add_token(Operator::MUL);
 					advance();
 					break;
 				}
@@ -235,48 +243,48 @@ TokenStream Lexer::lex(){
 						advance(); // Skip `*`
 						advance(); // Skip `/`
 					}else{
-						add_token(OP_DIV);
+						add_token(Operator::DIV);
 						advance();
 					}
 					break;
 				}
 				case '%':{
-					add_token(OP_MOD);
+					add_token(Operator::MOD);
 					advance();
 					break;
 				}
 				case ';':{
-					add_token(OP_SEMICOLON);
+					add_token(Operator::SEMICOLON);
 					advance();
 					break;
 				}
 				case '(':{
-					add_token(OP_LPAREN);
+					add_token(Operator::LPAREN);
 					advance();
 					break;
 				}
 				case ')':{
-					add_token(OP_RPAREN);
+					add_token(Operator::RPAREN);
 					advance();
 					break;
 				}
 				case '{':{
-					add_token(OP_LBRACE);
+					add_token(Operator::LBRACE);
 					advance();
 					break;
 				}
 				case '}':{
-					add_token(OP_RBRACE);
+					add_token(Operator::RBRACE);
 					advance();
 					break;
 				}
 				case ',':{
-					add_token(OP_COMMA);
+					add_token(Operator::COMMA);
 					advance();
 					break;
 				}
 				case ':':{
-					add_token(OP_COLON);
+					add_token(Operator::COLON);
 					advance();
 					break;
 				}
@@ -284,7 +292,7 @@ TokenStream Lexer::lex(){
 					if(is_digit(peekNext())){
 						lex_number();
 					}else{
-						add_token(OP_DOT);
+						add_token(Operator::DOT);
 						advance();
 					}
 					break;
@@ -296,7 +304,7 @@ TokenStream Lexer::lex(){
 		}
 	}
 
-	add_token(T_EOF);
+	add_token(TokenType::T_EOF);
 
 	return tokens;
 }

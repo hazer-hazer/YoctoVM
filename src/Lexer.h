@@ -45,6 +45,7 @@ private:
     bool skip(const char & c);
     bool is_nl(const char & c);
     bool is_digit(const char & c);
+    bool is_hex(const char & c);
     bool is_id_first(const char & c);
     bool is_id(const char & c);
     bool is_quote(const char & c);
