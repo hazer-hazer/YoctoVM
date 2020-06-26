@@ -15,7 +15,8 @@
 
 enum class ValueType {
 	Null,
-	DataObj
+	DataObj,
+	Function
 };
 
 struct Value {
@@ -31,6 +32,9 @@ inline std::ostream & operator<<(std::ostream & os, const Value & val){
 		}
 		case ValueType::DataObj:{
 			os << static_cast<DataObject*>(val.obj)->toString()->get_val();
+		}
+		case ValueType::Function:{
+			os << "function";
 		}
 	}
 	return os;

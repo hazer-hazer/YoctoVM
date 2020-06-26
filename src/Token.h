@@ -15,30 +15,30 @@ struct Token;
 using TokenStream = std::vector<Token>;
 
 enum class TokenType {
-    T_NULL,
-    T_BOOL,
-    T_INT,
-    T_FLOAT,
-    T_STR,
-    T_OP,
-    T_KW,
-    T_ID,
-    T_NL,
-    T_EOF
+    Null,
+    Bool,
+    Int,
+    Float,
+    Str,
+    Op,
+    Kw,
+    Id,
+    Nl,
+    Eof
 };
 
 enum class Operator {
-    ASSIGN,
+    Assign,
 
-    ADD, SUB, MUL, DIV, MOD,
+    Add, Sub, Mul, Div, Mod,
 
     // Punctuations
-    LPAREN, RPAREN,
-    LBRACE, RBRACE,
+    LParen, RParen,
+    LBrace, RBrace,
 
-    COMMA, COLON, DOT,
+    Comma, Colon, Dot,
 
-    SEMICOLON
+    Semi
 };
 
 const std::vector <std::string> operators {
@@ -58,17 +58,17 @@ inline std::string op_to_str(const Operator & op){
 }
 
 enum class Keyword {
-    KW_NULL,
-    KW_TRUE, KW_FALSE,
-    KW_VAR, KW_VAL,
-    KW_FUNC,
+    Null,
+    True, False,
+    Var, Val,
+    Func,
 
-    KW_IF, KW_ELIF, KW_ELSE,
+    If, Elif, Else,
 
     // Note: Print keyword is used by PRINT OpCode and it might be removed in the future
-    KW_PRINT,
+    Print,
     
-    KW_MAX
+    MAX
 };
 
 // Overload operator less-than to check if identifier is Keyword
@@ -111,16 +111,16 @@ struct Token {
         this->type = _type;
 
         switch(type){
-            case TokenType::T_ID:
-            case TokenType::T_STR:{
+            case TokenType::Id:
+            case TokenType::Str:{
                 val = v;
                 break;
             }
-            case TokenType::T_NL:{
+            case TokenType::Nl:{
                 val = 0;
                 break;
             }
-            case TokenType::T_EOF:{
+            case TokenType::Eof:{
                 val = 0;
                 break;
             }
@@ -128,34 +128,34 @@ struct Token {
     }
 
     Token(const int & i){
-        type = TokenType::T_INT;
+        type = TokenType::Int;
         val = i;
     }
 
     Token(const double & d){
-        type = TokenType::T_FLOAT;
+        type = TokenType::Float;
         val = d;
     }
 
     Token(const Operator & op){
-        type = TokenType::T_OP;
+        type = TokenType::Op;
         val = op;
     }
 
     Token(const Keyword & kw){
         switch(kw){
-            case Keyword::KW_TRUE:
-            case Keyword::KW_FALSE:{
-                type = TokenType::T_BOOL;
-                val = kw == Keyword::KW_TRUE;
+            case Keyword::True:
+            case Keyword::False:{
+                type = TokenType::Bool;
+                val = kw == Keyword::True;
                 break;
             }
-            case Keyword::KW_NULL:{
-                type = TokenType::T_NULL;
+            case Keyword::Null:{
+                type = TokenType::Null;
                 val = 0;
             }
             default:{
-                type = TokenType::T_KW;
+                type = TokenType::Kw;
                 val = kw;
             }
         }
@@ -196,39 +196,39 @@ struct Token {
         std::string str;
 
         switch(type){
-            case TokenType::T_BOOL:{
+            case TokenType::Bool:{
                 str += "bool";
                 break;
             }
-            case TokenType::T_INT:{
+            case TokenType::Int:{
                 str += "int";
                 break;
             }
-            case TokenType::T_FLOAT:{
+            case TokenType::Float:{
                 str += "float";
                 break;
             }
-            case TokenType::T_ID:{
+            case TokenType::Id:{
                 str += "identifier";
                 break;
             }
-            case TokenType::T_STR:{
+            case TokenType::Str:{
                 str += "string";
                 break;
             }
-            case TokenType::T_OP:{
+            case TokenType::Op:{
                 str += "operator";
                 break;
             }
-            case TokenType::T_KW:{
+            case TokenType::Kw:{
                 str += "keyword";
                 break;
             }
-            case TokenType::T_NL:{
+            case TokenType::Nl:{
                 str += "[new line]";
                 break;
             }
-            case TokenType::T_EOF:{
+            case TokenType::Eof:{
                 str += "[EOF]";
                 break;
             }
@@ -237,28 +237,28 @@ struct Token {
         // TODO: Fix quote for empty values
         str += " `";
         switch(type){
-            case TokenType::T_BOOL:{
+            case TokenType::Bool:{
                 str += std::to_string(Bool());
                 break;
             }
-            case TokenType::T_INT:{
+            case TokenType::Int:{
                 str += std::to_string(Int());
                 break;
             }
-            case TokenType::T_FLOAT:{
+            case TokenType::Float:{
                 str += std::to_string(Float());
                 break;
             }
-            case TokenType::T_ID:
-            case TokenType::T_STR:{
+            case TokenType::Id:
+            case TokenType::Str:{
                 str += String();
                 break;
             }
-            case TokenType::T_OP:{
+            case TokenType::Op:{
                 str += op_to_str(op());
                 break;
             }
-            case TokenType::T_KW:{
+            case TokenType::Kw:{
                 str += kw_to_str(kw());
                 break;
             }

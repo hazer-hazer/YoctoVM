@@ -65,40 +65,40 @@ int Chunk::disasm_instruction(int offset){
 
 	auto instruction = OpCode(code[offset]);
 	switch(instruction){
-		case OpCode::CONSTANT:{
+		case OpCode::Const:{
 			return const_instruction("CONST", *this, offset);
 		}
-		case OpCode::CONST_NULL:{
+		case OpCode::Null:{
 			return simple_instruction("NULL", offset);
 		}
-		case OpCode::POP:{
+		case OpCode::Pop:{
 			return simple_instruction("POP", offset);
 		}
-		case OpCode::DEFINE_GLOBAL:{
+		case OpCode::DefineGlobal:{
 			return const_instruction("DEFINE_GLOBAL", *this, offset);
 		}
-		case OpCode::GET_GLOBAL:{
+		case OpCode::GetGlobal:{
 			return const_instruction("GET_GLOBAL", *this, offset);
 		}
-		case OpCode::SET_GLOBAL:{
+		case OpCode::SetGlobal:{
 			return const_instruction("SET_GLOBAL", *this, offset);
 		}
-		case OpCode::GET_LOCAL:{
+		case OpCode::GetLocal:{
 			return byte_instruction("GET_LOCAL", *this, offset);
 		}
-		case OpCode::SET_LOCAL:{
+		case OpCode::SetLocal:{
 			return byte_instruction("SET_LOCAL", *this, offset);
 		}
-		case OpCode::JUMP:{
+		case OpCode::Jump:{
 			return jump_instruction("JUMP", 1, *this, offset);
 		}
-		case OpCode::JUMP_IF_FALSE:{
+		case OpCode::JumpIfFalse:{
 			return jump_instruction("JUMP_IF_FALSE", 1, *this, offset);
 		}
-		case OpCode::PRINT:{
+		case OpCode::Print:{
 			return simple_instruction("PRINT", offset);
 		}
-		case OpCode::RETURN:{
+		case OpCode::Return:{
 			return simple_instruction("RETURN", offset);
 			break;
 		}

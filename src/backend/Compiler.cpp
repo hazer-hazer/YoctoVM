@@ -44,7 +44,7 @@ void Compiler::patch_jump(int offset){
 
 // CONST
 void Compiler::emit_const(Value val){
-	emit(OpCode::CONSTANT, make_const(val));
+	emit(OpCode::Const, make_const(val));
 }
 
 uint8_t Compiler::make_const(Value val){
@@ -61,7 +61,7 @@ uint8_t Compiler::make_id_const(const std::string & name){
 
 // LOOP
 void Compiler::emit_loop(int loop_start){
-	emit(OpCode::SETUP_LOOP);
+	emit(OpCode::SetupLoop);
 
 	int offset = chunk.count() - loop_start + 2;
 	if(offset > UINT16_MAX){
@@ -80,7 +80,7 @@ void Compiler::exit_scope(){
 	// Got to parent scope and pop all locals in exited scope
 	scope_depth--;
 	while(!locals.empty() && locals.back().depth > scope_depth){
-		emit(OpCode::POP);
+		emit(OpCode::Pop);
 		locals.pop_back();
 	}
 }
@@ -141,7 +141,7 @@ void Compiler::visit(const ParseTree & tree){
 		n->accept(*this);
 	}
 
-	emit(OpCode::RETURN);
+	emit(OpCode::Return);
 
 	chunk.disasm("code");
 }
@@ -152,23 +152,23 @@ void Compiler::visit(ExprStmt & expr_stmt){
 
 void Compiler::visit(Literal & literal){
 	switch(literal.token.type){
-		case TokenType::T_NULL:{
-			emit(OpCode::CONST_NULL);
+		case TokenType::Null:{
+			emit(OpCode::Null);
 			break;
 		}
-		case TokenType::T_INT:{
+		case TokenType::Int:{
 			emit_const({ValueType::DataObj, new Int(literal.token.Int())});
 			break;
 		}
-		case TokenType::T_FLOAT:{
+		case TokenType::Float:{
 			emit_const({ValueType::DataObj, new Float(literal.token.Float())});
 			break;
 		}
-		case TokenType::T_BOOL:{
+		case TokenType::Bool:{
 			emit_const({ValueType::DataObj, new Bool(literal.token.Bool())});
 			break;
 		}
-		case TokenType::T_STR:{
+		case TokenType::Str:{
 			emit_const({ValueType::DataObj, new String(literal.token.String())});
 			break;
 		}
@@ -182,9 +182,9 @@ void Compiler::visit(Identifier & id){
 	if(index == -1){
 		// Global
 		index = make_id_const(id.get_name());
-		emit(OpCode::GET_GLOBAL, static_cast<uint8_t>(index));
+		emit(OpCode::GetGlobal, static_cast<uint8_t>(index));
 	}else{
-		emit(OpCode::GET_LOCAL, static_cast<uint8_t>(index));
+		emit(OpCode::GetLocal, static_cast<uint8_t>(index));
 	}
 	// Note: Variable assignments implemented in InfixOp visitor
 }
@@ -201,7 +201,7 @@ void Compiler::visit(VarDecl & var_decl){
 	if(var_decl.assign_expr){
 		var_decl.assign_expr->accept(*this);
 	}else{
-		emit(OpCode::CONST_NULL);
+		emit(OpCode::Null);
 	}
 
 	if(is_local()){
@@ -209,7 +209,7 @@ void Compiler::visit(VarDecl & var_decl){
 		mark_inited();
 	}else{
 		// Define global
-		emit(OpCode::DEFINE_GLOBAL, global);
+		emit(OpCode::DefineGlobal, global);
 	}
 }
 
@@ -238,13 +238,13 @@ void Compiler::visit(IfExpression & if_expr){
 	
 	if_expr.conditions[0].cond.accept(*this);
 
-	int then_jump = emit_jump(OpCode::JUMP_IF_FALSE);
-	emit(OpCode::POP);
+	int then_jump = emit_jump(OpCode::JumpIfFalse);
+	emit(OpCode::Pop);
 	if_expr.conditions[0].body.accept(*this);
-	int else_jump = emit_jump(OpCode::JUMP);
+	int else_jump = emit_jump(OpCode::Jump);
 
 	patch_jump(then_jump);
-	emit(OpCode::POP);
+	emit(OpCode::Pop);
 
 	if(if_expr.Else){
 		if_expr.Else->accept(*this);
@@ -255,5 +255,5 @@ void Compiler::visit(IfExpression & if_expr){
 void Compiler::visit(Print & print){
 	print.expr.accept(*this);
 
-	emit(OpCode::PRINT);
+	emit(OpCode::Print);
 }

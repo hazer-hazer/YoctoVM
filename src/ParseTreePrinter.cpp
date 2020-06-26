@@ -28,10 +28,10 @@ void ParseTreePrinter::visit(ExprStmt & expr_stmt){
 
 void ParseTreePrinter::visit(Literal & literal){
 	switch(literal.token.type){
-		case TokenType::T_BOOL: std::cout << literal.token.Bool(); break;
-		case TokenType::T_INT: std::cout << literal.token.Int(); break;
-		case TokenType::T_FLOAT: std::cout << literal.token.Float(); break;
-		case TokenType::T_STR: std::cout << literal.token.String(); break;
+		case TokenType::Bool: std::cout << literal.token.Bool(); break;
+		case TokenType::Int: std::cout << literal.token.Int(); break;
+		case TokenType::Float: std::cout << literal.token.Float(); break;
+		case TokenType::Str: std::cout << literal.token.String(); break;
 	}
 }
 
@@ -41,9 +41,9 @@ void ParseTreePrinter::visit(Identifier & id){
 
 void ParseTreePrinter::visit(VarDecl & var_decl){
 	print_indent();
-	if(var_decl.decl == VarDeclType::VAR){
+	if(var_decl.decl == VarDeclType::Var){
 		std::cout << "var";
-	}else if(var_decl.decl == VarDeclType::VAL){
+	}else if(var_decl.decl == VarDeclType::Val){
 		std::cout << "val";
 	}
 	std::cout << " ";

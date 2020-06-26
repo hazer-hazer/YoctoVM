@@ -20,20 +20,20 @@ InterpretResult VM::run(){
 
 		auto instruction = OpCode(read_byte());
 		switch(instruction){
-			case OpCode::CONSTANT:{
+			case OpCode::Const:{
 				auto constant = read_const();
 				push(constant);
 				break;
 			}
-			case OpCode::CONST_NULL:{
+			case OpCode::Null:{
 				push({ValueType::Null, nullptr});
 				break;
 			}
-			case OpCode::POP:{
+			case OpCode::Pop:{
 				pop();
 				break;
 			}
-			case OpCode::GET_GLOBAL:{
+			case OpCode::GetGlobal:{
 				auto name = read_string();
 				auto found = globals.find(name);
 				if(found == globals.end()){
@@ -43,13 +43,13 @@ InterpretResult VM::run(){
 				push(value);
 				break;
 			}
-			case OpCode::DEFINE_GLOBAL:{
+			case OpCode::DefineGlobal:{
 				auto name = read_string();
 				globals[name] = peek(0);
 				pop();
 				break;
 			}
-			case OpCode::SET_GLOBAL:{
+			case OpCode::SetGlobal:{
 				auto name = read_string();
 				auto found = globals.find(name);
 				if(found == globals.end()){
@@ -58,22 +58,22 @@ InterpretResult VM::run(){
 				found->second = peek(0);
 				break;
 			}
-			case OpCode::SET_LOCAL:{
+			case OpCode::SetLocal:{
 				uint8_t slot = read_byte();
 				stack[slot] = peek(0);
 				break;
 			}
-			case OpCode::GET_LOCAL:{
+			case OpCode::GetLocal:{
 				uint8_t slot = read_byte();
 				push(stack[slot]);
 				break;
 			}
-			case OpCode::JUMP:{
+			case OpCode::Jump:{
 				auto offset = read_short();
 				ip += offset;
 				break;
 			}
-			case OpCode::JUMP_IF_FALSE:{
+			case OpCode::JumpIfFalse:{
 				auto offset = read_short();
 				// If falsy -> jump
 				if(!peek_bool(0)){
@@ -81,7 +81,7 @@ InterpretResult VM::run(){
 				}
 				break;
 			}
-			case OpCode::PRINT:{
+			case OpCode::Print:{
 				Value val = pop();
 				DataObject * dataObj = dynamic_cast<DataObject*>(val.obj);
 				if(dataObj){
@@ -91,8 +91,8 @@ InterpretResult VM::run(){
 				}
 				break;
 			}
-			case OpCode::RETURN:{
-				return InterpretResult::OK;
+			case OpCode::Return:{
+				return InterpretResult::Ok;
 			}
 		}
 	}

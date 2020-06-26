@@ -8,20 +8,22 @@
 #include "backend/Value.h"
 
 enum class OpCode: uint8_t {
-	CONST_NULL,
-	CONSTANT,
+	Null,
+	Const,
 
-	POP,
-	SETUP_LOOP,
+	Pop,
 
-	DEFINE_GLOBAL,
-	GET_GLOBAL,
-	SET_GLOBAL,
-	GET_LOCAL,
-	SET_LOCAL,
+	DefineGlobal,
+	GetGlobal,
+	SetGlobal,
 
-	JUMP,
-	JUMP_IF_FALSE,
+	GetLocal,
+	SetLocal,
+
+	Jump,
+	JumpIfFalse,
+
+	SetupLoop,
 
 	// OP_NEGATE,
 	// OP_ADD,
@@ -30,9 +32,9 @@ enum class OpCode: uint8_t {
 	// OP_DIV,
 	
 	// Replace PRINT OpCode with built-in function or use it for REPL
-	PRINT,
+	Print,
 	
-	RETURN
+	Return
 };
 
 struct Chunk {

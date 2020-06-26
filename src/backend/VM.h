@@ -9,9 +9,9 @@
 #include "backend/Chunk.h"
 
 enum InterpretResult {
-	OK,
-	COMPILE_ERROR,
-	RUNTIME_ERROR
+	Ok,
+	CompileError,
+	RuntimeError
 };
 
 class VM {

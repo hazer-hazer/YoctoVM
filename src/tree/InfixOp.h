@@ -4,8 +4,8 @@
 #include "tree/Node.h"
 
 enum class InfixPrec {
-	ZERO,
-	ASSIGN,
+	Zero,
+	Assign,
 	// OR,
 	// AND,
 	// BIT_OR,
@@ -14,33 +14,33 @@ enum class InfixPrec {
 	// CMP,
 	// SH,
 	// RANGE,
-	TERM,
-	FACTOR,
+	Term,
+	Factor,
 	// EXP,
 	// ACCESS,
-	NONE
+	None
 };
 
 inline int get_infix_prec(const Operator & op){
 	InfixPrec prec;
 	switch(op){
-		case Operator::ASSIGN:{
-			prec = InfixPrec::ASSIGN;
+		case Operator::Assign:{
+			prec = InfixPrec::Assign;
 			break;
 		}
-		case Operator::ADD:
-		case Operator::SUB:{
-			prec = InfixPrec::TERM;
+		case Operator::Add:
+		case Operator::Sub:{
+			prec = InfixPrec::Term;
 			break;
 		}
-		case Operator::MUL:
-		case Operator::DIV:
-		case Operator::MOD:{
-			prec = InfixPrec::FACTOR;
+		case Operator::Mul:
+		case Operator::Div:
+		case Operator::Mod:{
+			prec = InfixPrec::Factor;
 			break;
 		}
 		default:{
-			prec = InfixPrec::NONE;
+			prec = InfixPrec::None;
 		}
 	}
 

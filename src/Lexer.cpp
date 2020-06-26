@@ -94,7 +94,7 @@ void Lexer::add_token(const double & d){
 }
 
 void Lexer::lex_number(){
-	TokenType num_type = TokenType::T_INT;
+	TokenType num_type = TokenType::Int;
 	std::string num;
 
 	if(peek() == '0'){
@@ -140,7 +140,7 @@ void Lexer::lex_number(){
 	}
 
 	if(peek() == '.'){
-		num_type = TokenType::T_FLOAT;
+		num_type = TokenType::Float;
 		num += peek();
 		advance();
 		if(!is_digit(peek())){
@@ -151,7 +151,7 @@ void Lexer::lex_number(){
 		}while(is_digit(advance()));
 	}
 
-	if(num_type == TokenType::T_FLOAT){
+	if(num_type == TokenType::Float){
 		add_token(std::stod(num));
 	}else{
 		add_token(std::stoi(num));
@@ -167,7 +167,7 @@ TokenStream Lexer::lex(){
 		if(skip(peek())){
 			advance();
 		}else if(is_nl(peek())){
-			add_token(TokenType::T_NL);
+			add_token(TokenType::Nl);
 			advance();
 		}else if(is_digit(peek())){
 			lex_number();
@@ -179,10 +179,10 @@ TokenStream Lexer::lex(){
 
 			Keyword kw = str_to_kw(id);
 
-			if(kw < Keyword::KW_MAX){
+			if(kw < Keyword::MAX){
 				add_token(kw);
 			}else{
-				add_token(TokenType::T_ID, id);
+				add_token(TokenType::Id, id);
 			}
 		}else if(is_quote(peek())){
 			const char quote = peek();
@@ -201,27 +201,27 @@ TokenStream Lexer::lex(){
 			if(peek() != quote){
 				unexpected_error();
 			}
-			add_token(TokenType::T_STR, str);
+			add_token(TokenType::Str, str);
 			advance();
 		}else{
 			switch(peek()){
 				case '=':{
-					add_token(Operator::ASSIGN);
+					add_token(Operator::Assign);
 					advance();
 					break;
 				}
 				case '+':{
-					add_token(Operator::ADD);
+					add_token(Operator::Add);
 					advance();
 					break;
 				}
 				case '-':{
-					add_token(Operator::SUB);
+					add_token(Operator::Sub);
 					advance();
 					break;
 				}
 				case '*':{
-					add_token(Operator::MUL);
+					add_token(Operator::Mul);
 					advance();
 					break;
 				}
@@ -243,48 +243,48 @@ TokenStream Lexer::lex(){
 						advance(); // Skip `*`
 						advance(); // Skip `/`
 					}else{
-						add_token(Operator::DIV);
+						add_token(Operator::Div);
 						advance();
 					}
 					break;
 				}
 				case '%':{
-					add_token(Operator::MOD);
+					add_token(Operator::Mod);
 					advance();
 					break;
 				}
 				case ';':{
-					add_token(Operator::SEMICOLON);
+					add_token(Operator::Semi);
 					advance();
 					break;
 				}
 				case '(':{
-					add_token(Operator::LPAREN);
+					add_token(Operator::LParen);
 					advance();
 					break;
 				}
 				case ')':{
-					add_token(Operator::RPAREN);
+					add_token(Operator::RParen);
 					advance();
 					break;
 				}
 				case '{':{
-					add_token(Operator::LBRACE);
+					add_token(Operator::LBrace);
 					advance();
 					break;
 				}
 				case '}':{
-					add_token(Operator::RBRACE);
+					add_token(Operator::RBrace);
 					advance();
 					break;
 				}
 				case ',':{
-					add_token(Operator::COMMA);
+					add_token(Operator::Comma);
 					advance();
 					break;
 				}
 				case ':':{
-					add_token(Operator::COLON);
+					add_token(Operator::Colon);
 					advance();
 					break;
 				}
@@ -292,7 +292,7 @@ TokenStream Lexer::lex(){
 					if(is_digit(peekNext())){
 						lex_number();
 					}else{
-						add_token(Operator::DOT);
+						add_token(Operator::Dot);
 						advance();
 					}
 					break;
@@ -304,7 +304,7 @@ TokenStream Lexer::lex(){
 		}
 	}
 
-	add_token(TokenType::T_EOF);
+	add_token(TokenType::Eof);
 
 	return tokens;
 }
