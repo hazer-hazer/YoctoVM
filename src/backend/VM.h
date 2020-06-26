@@ -5,7 +5,7 @@
 #include <vector>
 #include <unordered_map>
 
-#include "Exceptions.h"
+#include "Exception.h"
 #include "backend/Chunk.h"
 
 enum InterpretResult {
@@ -16,7 +16,7 @@ enum InterpretResult {
 
 class VM {
 public:
-	VM();
+	VM(Chunk & chunk);
 	virtual ~VM() = default;
 
 	InterpretResult run();
@@ -24,7 +24,7 @@ public:
 private:
 	// Chunk
 	Chunk & chunk;
-	unsigned int ip;
+	unsigned ip;
 
 	std::vector<Value> stack;
 	std::unordered_map<std::string, Value> globals;
@@ -47,22 +47,40 @@ private:
 
 	// Chunk manips
 	inline uint8_t read_byte(){
-		return chunk.read_byte(ip++);
+		return chunk.get_byte(ip++);
 	}
 	inline Value read_const(){
-		return chunk.read_const(read_byte());
+		return chunk.get_const(read_byte());
 	}
 	inline uint16_t read_short(){
 		// Just read two bytes and disjunct them
-		ip++;
+		ip += 2;
 		return ((chunk.get_byte(ip - 2) << 8) | (chunk.get_byte(ip - 1)));
 	}
 	inline std::string read_string(){
-		return std::get<std::string>(read_const());
+		// Read String object from chunk constants and get its inner value
+		String * strObj = dynamic_cast<String*>(read_const().obj);
+		if(!strObj){
+			runtime_error("String expected");
+		}
+		return strObj->get_val();
+	}
+
+	// Stack manips
+	inline bool peek_bool(int distance){
+		DataObject * dataObj = dynamic_cast<DataObject*>(peek(distance).obj);
+		if(!dataObj){
+			// Note: We know that all DataObject's have toBool function, so we throw exception
+			runtime_error("Unable to convert expression to boolean");
+		}
+		// Note: Automatically converts any DataObject to Bool
+		// TODO: Think about bad cases !!!
+		return dataObj->toBool()->get_val();
 	}
 
 	// Errors
 	inline void runtime_error(const std::string & msg){
+		reset_stack();
 		throw YoctoException(msg);
 	}
 

@@ -21,6 +21,8 @@ public:
 	void visit(InfixOp & infix_op) override;
 	void visit(IfExpression & if_expr) override;
 
+	void visit(Print & print) override;
+
 private:
 	void print_indent();
 

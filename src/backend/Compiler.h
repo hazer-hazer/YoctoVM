@@ -4,6 +4,7 @@
 #include "BaseVisitor.h"
 #include "tree/nodes.h"
 #include "backend/Chunk.h"
+#include "backend/Value.h"
 
 #define UINT8_COUNT (UINT8_MAX + 1)
 
@@ -28,6 +29,8 @@ public:
 	void visit(FuncCall & func_call) override;
 	void visit(InfixOp & infix_op) override;
 	void visit(IfExpression & if_expr) override;
+
+	void visit(Print & print) override;
 
 private:
 	Chunk & chunk;

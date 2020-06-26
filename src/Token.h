@@ -64,6 +64,9 @@ enum class Keyword {
     KW_FUNC,
 
     KW_IF, KW_ELIF, KW_ELSE,
+
+    // Note: Print keyword is used by PRINT OpCode and it might be removed in the future
+    KW_PRINT,
     
     KW_MAX
 };
@@ -78,7 +81,9 @@ const std::vector <std::string> keywords {
     "true", "false",
     "var", "val",
     "func",
-    "if", "elif", "else"
+    "if", "elif", "else",
+    
+    "print"
 };
 
 inline Keyword str_to_kw(const std::string & str){

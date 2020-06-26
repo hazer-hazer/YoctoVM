@@ -9,6 +9,14 @@ InterpretResult VM::run(){
 	std::cout << "Run bytecode...\n";
 
 	while(true){
+		// Debug
+		// std::cout << "          ";
+		// for(auto val : stack){
+		// 	std::cout << "[ " << val << " ]";
+		// }
+		// std::cout << std::endl;
+
+		// chunk.disasm_instruction(ip);
 
 		auto instruction = OpCode(read_byte());
 		switch(instruction){
@@ -18,7 +26,7 @@ InterpretResult VM::run(){
 				break;
 			}
 			case OpCode::CONST_NULL:{
-				push(std::monostate());
+				push({ValueType::Null, nullptr});
 				break;
 			}
 			case OpCode::POP:{
@@ -42,7 +50,7 @@ InterpretResult VM::run(){
 				break;
 			}
 			case OpCode::SET_GLOBAL:{
-				auto name = read_byte();
+				auto name = read_string();
 				auto found = globals.find(name);
 				if(found == globals.end()){
 					runtime_error(name + " is not defined");
@@ -65,10 +73,27 @@ InterpretResult VM::run(){
 				ip += offset;
 				break;
 			}
-			// case OpCode::JUMP_IF_FALSE:{
-			// 	auto offset = read_short();
-			// 	// if()
-			// }
+			case OpCode::JUMP_IF_FALSE:{
+				auto offset = read_short();
+				// If falsy -> jump
+				if(!peek_bool(0)){
+					ip += offset;
+				}
+				break;
+			}
+			case OpCode::PRINT:{
+				Value val = pop();
+				DataObject * dataObj = dynamic_cast<DataObject*>(val.obj);
+				if(dataObj){
+					std::cout << dataObj->toString()->get_val() << std::endl;
+				}else{
+					std::cout << "Object[" << val.obj << "]" << std::endl;
+				}
+				break;
+			}
+			case OpCode::RETURN:{
+				return InterpretResult::OK;
+			}
 		}
 	}
 }

@@ -14,6 +14,8 @@ struct FuncCall;
 struct InfixOp;
 struct IfExpression;
 
+struct Print;
+
 using ParseTree = std::vector<Node*>;
 
 class BaseVisitor {
@@ -31,6 +33,8 @@ public:
 	virtual void visit(FuncCall & func_call) = 0;
 	virtual void visit(InfixOp & infix_op) = 0;
 	virtual void visit(IfExpression & if_expr) = 0;
+	
+	virtual void visit(Print & print) = 0;
 };
 
 #endif

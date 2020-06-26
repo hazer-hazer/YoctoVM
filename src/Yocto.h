@@ -11,6 +11,7 @@
 #include "Parser.h"
 #include "ParseTreePrinter.h"
 #include "backend/Compiler.h"
+#include "backend/VM.h"
 
 class Yocto {
 public:

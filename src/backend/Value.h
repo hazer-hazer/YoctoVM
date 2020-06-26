@@ -4,18 +4,36 @@
 #include <iostream>
 #include <variant>
 
+#include "Object/Object.h"
+#include "Object/DataObject.h"
+#include "Object/String.h"
+#include "Object/Bool.h"
+#include "Object/Int.h"
+#include "Object/Float.h"
+
 #define FLOAT_NUM_PRECISION 15
 
 enum class ValueType {
-	OBJ
+	Null,
+	DataObj
 };
 
 struct Value {
 	ValueType type;
+	Object * obj;
 };
 
 inline std::ostream & operator<<(std::ostream & os, const Value & val){
-	os << val.toString().value;
+	switch(val.type){
+		case ValueType::Null:{
+			os << "null";
+			break;
+		}
+		case ValueType::DataObj:{
+			os << static_cast<DataObject*>(val.obj)->toString()->get_val();
+		}
+	}
+	return os;
 }
 
 #endif

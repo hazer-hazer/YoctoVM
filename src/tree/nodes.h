@@ -6,6 +6,7 @@
 #include "tree/FuncCall.h"
 #include "tree/InfixOp.h"
 #include "tree/IfExpression.h"
+#include "tree/Print.h"
 #include "tree/Node.h"
 
 /**

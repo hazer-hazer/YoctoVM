@@ -29,6 +29,9 @@ enum class OpCode: uint8_t {
 	// OP_MUL,
 	// OP_DIV,
 	
+	// Replace PRINT OpCode with built-in function or use it for REPL
+	PRINT,
+	
 	RETURN
 };
 
@@ -51,7 +54,7 @@ struct Chunk {
 
 	void write(uint8_t byte);
 	void write(OpCode opcode);
-	unsigned long add_const(Value val);
+	size_t add_const(Value val);
 	int count() {
 		return static_cast<int>(code.size());
 	}

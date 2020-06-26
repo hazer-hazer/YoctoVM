@@ -10,7 +10,7 @@ void Chunk::write(OpCode opcode){
 	write(static_cast<uint8_t>(opcode));
 }
 
-unsigned long Chunk::add_const(Value val){
+size_t Chunk::add_const(Value val){
 	constants.push_back(val);
 	return constants.size() - 1;
 }
@@ -94,6 +94,9 @@ int Chunk::disasm_instruction(int offset){
 		}
 		case OpCode::JUMP_IF_FALSE:{
 			return jump_instruction("JUMP_IF_FALSE", 1, *this, offset);
+		}
+		case OpCode::PRINT:{
+			return simple_instruction("PRINT", offset);
 		}
 		case OpCode::RETURN:{
 			return simple_instruction("RETURN", offset);

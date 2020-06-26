@@ -56,7 +56,7 @@ uint8_t Compiler::make_const(Value val){
 }
 
 uint8_t Compiler::make_id_const(const std::string & name){
-	return make_const(name);
+	return make_const({ValueType::DataObj, new String(name)});
 }
 
 // LOOP
@@ -141,6 +141,8 @@ void Compiler::visit(const ParseTree & tree){
 		n->accept(*this);
 	}
 
+	emit(OpCode::RETURN);
+
 	chunk.disasm("code");
 }
 
@@ -150,24 +152,24 @@ void Compiler::visit(ExprStmt & expr_stmt){
 
 void Compiler::visit(Literal & literal){
 	switch(literal.token.type){
-		case TokenType::T_INT:{
-			emit_const(literal.token.Int());
-			break;
-		}
-		case TokenType::T_FLOAT:{
-			emit_const(literal.token.Float());
-			break;
-		}
 		case TokenType::T_NULL:{
 			emit(OpCode::CONST_NULL);
 			break;
 		}
+		case TokenType::T_INT:{
+			emit_const({ValueType::DataObj, new Int(literal.token.Int())});
+			break;
+		}
+		case TokenType::T_FLOAT:{
+			emit_const({ValueType::DataObj, new Float(literal.token.Float())});
+			break;
+		}
 		case TokenType::T_BOOL:{
-			emit(literal.token.Bool());
+			emit_const({ValueType::DataObj, new Bool(literal.token.Bool())});
 			break;
 		}
 		case TokenType::T_STR:{
-			emit_const(literal.token.String());
+			emit_const({ValueType::DataObj, new String(literal.token.String())});
 			break;
 		}
 	}
@@ -248,4 +250,10 @@ void Compiler::visit(IfExpression & if_expr){
 		if_expr.Else->accept(*this);
 	}
 	patch_jump(else_jump);
+}
+
+void Compiler::visit(Print & print){
+	print.expr.accept(*this);
+
+	emit(OpCode::PRINT);
 }

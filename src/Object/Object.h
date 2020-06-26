@@ -5,8 +5,6 @@ class Object {
 public:
 	Object(){}
 	virtual ~Object() = default;
-
-	
 };
 
 #endif

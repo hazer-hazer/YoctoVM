@@ -130,3 +130,8 @@ void ParseTreePrinter::visit(IfExpression & if_expr){
 		std::cout << "\n}";
 	}
 }
+
+void ParseTreePrinter::visit(Print & print){
+	std::cout << "print ";
+	print.expr.accept(*this);
+}

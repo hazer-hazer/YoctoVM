@@ -123,6 +123,11 @@ Statement * Parser::parse_statement(){
 				return parse_func_decl();
 				break;
 			}
+			case Keyword::KW_PRINT:{
+				skip_kw(Keyword::KW_PRINT, false, false);
+				Expression * expr = parse_expression();
+				return new Print(*expr);
+			}
 		}
 	}
 
