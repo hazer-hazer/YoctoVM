@@ -1,22 +1,22 @@
 #include "backend/VM.h"
 
-VM::VM(Chunk & chunk) : chunk(chunk) {
-	ip = 0;
+VM::VM(Function * root){
 	stack.clear();
+	frames.clear();
+
+	// Push root function
+	push({ Function, root });
+	frame->function = root;
+	frame->ip = 0;
+	frame->slots = stack;
 }
 
-InterpretResult VM::run(){
+void VM::run(){
 	std::cout << "Run bytecode...\n";
 
-	while(true){
-		// Debug
-		// std::cout << "          ";
-		// for(auto val : stack){
-		// 	std::cout << "[ " << val << " ]";
-		// }
-		// std::cout << std::endl;
+	CallFrame * frame = &frames.back();
 
-		// chunk.disasm_instruction(ip);
+	while(true){
 
 		auto instruction = OpCode(read_byte());
 		switch(instruction){
@@ -60,24 +60,24 @@ InterpretResult VM::run(){
 			}
 			case OpCode::SetLocal:{
 				uint8_t slot = read_byte();
-				stack[slot] = peek(0);
+				frame->slots[slot] = peek(0);
 				break;
 			}
 			case OpCode::GetLocal:{
 				uint8_t slot = read_byte();
-				push(stack[slot]);
+				push(frame->slots[slot]);
 				break;
 			}
 			case OpCode::Jump:{
 				auto offset = read_short();
-				ip += offset;
+				frame->ip += offset;
 				break;
 			}
 			case OpCode::JumpIfFalse:{
 				auto offset = read_short();
 				// If falsy -> jump
 				if(!peek_bool(0)){
-					ip += offset;
+					frame->ip += offset;
 				}
 				break;
 			}
@@ -91,8 +91,8 @@ InterpretResult VM::run(){
 				}
 				break;
 			}
-			case OpCode::Return:{
-				return InterpretResult::Ok;
+			case OpCode::StopCode:{
+				return;
 			}
 		}
 	}

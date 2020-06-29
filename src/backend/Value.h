@@ -5,13 +5,14 @@
 #include <variant>
 
 #include "Object/Object.h"
+
 #include "Object/DataObject.h"
 #include "Object/String.h"
 #include "Object/Bool.h"
 #include "Object/Int.h"
 #include "Object/Float.h"
 
-#define FLOAT_NUM_PRECISION 15
+#include "Object/Function.h"
 
 enum class ValueType {
 	Null,
@@ -34,7 +35,7 @@ inline std::ostream & operator<<(std::ostream & os, const Value & val){
 			os << static_cast<DataObject*>(val.obj)->toString()->get_val();
 		}
 		case ValueType::Function:{
-			os << "function";
+			os << "function " + static_cast<Function*>(val.obj)->get_name();
 		}
 	}
 	return os;

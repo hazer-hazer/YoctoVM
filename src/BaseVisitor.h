@@ -23,7 +23,6 @@ public:
 	BaseVisitor() {}
 	virtual ~BaseVisitor() = default;
 	
-	virtual void visit(const ParseTree & tree) = 0;
 	virtual void visit(ExprStmt & expr_stmt) = 0;
 	virtual void visit(Literal & literal) = 0;
 	virtual void visit(Identifier & id) = 0;

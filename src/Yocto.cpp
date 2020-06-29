@@ -60,14 +60,13 @@ void Yocto::run(const std::string & script){
 
 	// Compile AST
 	std::cout << "Compile...\n";
-	auto chunk = Chunk();
-	Compiler compiler(chunk);
+	Compiler compiler();
 	auto compiler_start = bench;
-	compiler.visit(tree);
+	Function * root = compiler.compile(tree);
 	auto compiler_end = bench;
 
 	// Run bytecode
-	VM vm(chunk);
+	VM vm(root);
 	auto vm_start = bench;
 	vm.run();
 	auto vm_end = bench;
@@ -75,16 +74,16 @@ void Yocto::run(const std::string & script){
 	std::cout << "\n\nBenchmarks:\n";
 
 	auto lexer_duration = std::chrono::duration<double>(lexer_end - lexer_start).count();
-	std::cout << "Lexing was done in: " << lexer_duration << "s" << std::endl;
+	std::cout << "Lexing: " << lexer_duration << "s" << std::endl;
 
 	auto parser_duration = std::chrono::duration<double>(parser_end - parser_start).count();
-	std::cout << "Parsing was done in: " << parser_duration << "s" << std::endl;
+	std::cout << "Parsing: " << parser_duration << "s" << std::endl;
 
 	auto compiler_duration = std::chrono::duration<double>(compiler_end - compiler_start).count();
-	std::cout << "Compilation was done in: " << compiler_duration << "s" << std::endl;
+	std::cout << "Compilation: " << compiler_duration << "s" << std::endl;
 
 	auto vm_duration = std::chrono::duration<double>(vm_end - vm_start).count();
-	std::cout << "Evaluated in: " << vm_duration << "s" << std::endl;
+	std::cout << "Evaluation: " << vm_duration << "s" << std::endl;
 }
 
 // Note: Benchmark for script size of 100000 lines was lexed in 0.36s

@@ -98,8 +98,8 @@ int Chunk::disasm_instruction(int offset){
 		case OpCode::Print:{
 			return simple_instruction("PRINT", offset);
 		}
-		case OpCode::Return:{
-			return simple_instruction("RETURN", offset);
+		case OpCode::StopCode:{
+			return simple_instruction("STOP_CODE", offset);
 			break;
 		}
 	}

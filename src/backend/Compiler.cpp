@@ -1,16 +1,26 @@
 #include "backend/Compiler.h"
 
-Compiler::Compiler(Chunk & chunk) : chunk(chunk) {
+Compiler::Compiler() {
 	scope_depth = 0;
+	function = new Function();
+}
+
+Function * Compiler::end_compiler(){
+	emit(OpCode::Return);
+
+	std::string chunk_name = function->get_name();
+	function->chunk.disasm(chunk_name.empty() ? "<script>" : chunk_name);
+
+	return function;
 }
 
 // Emit
 void Compiler::emit(uint8_t byte){
-	chunk.write(byte);
+	current_chunk().write(byte);
 }
 
 void Compiler::emit(OpCode op){
-	chunk.write(op);
+	current_chunk().write(op);
 }
 
 void Compiler::emit(OpCode op, uint8_t byte){
@@ -28,18 +38,18 @@ int Compiler::emit_jump(OpCode op){
 	emit(op);
 	emit(0xff);
 	emit(0xff);
-	return chunk.count() - 2;
+	return current_chunk().count() - 2;
 }
 
 void Compiler::patch_jump(int offset){
-	int jump = chunk.count() - offset - 2;
+	int jump = current_chunk().count() - offset - 2;
 
 	if(jump > UINT16_MAX){
 		throw "Too much code to jump over.";
 	}
 
-	chunk.set_byte(offset, (jump >> 8) & 0xff);
-	chunk.set_byte(offset + 1, jump & 0xff);
+	current_chunk().set_byte(offset, (jump >> 8) & 0xff);
+	current_chunk().set_byte(offset + 1, jump & 0xff);
 }
 
 // CONST
@@ -48,7 +58,7 @@ void Compiler::emit_const(Value val){
 }
 
 uint8_t Compiler::make_const(Value val){
-	auto constant = chunk.add_const(val);
+	auto constant = current_chunk().add_const(val);
 	if(constant > UINT8_MAX){
 		throw "Too many constants in one chunk";
 	}
@@ -63,7 +73,7 @@ uint8_t Compiler::make_id_const(const std::string & name){
 void Compiler::emit_loop(int loop_start){
 	emit(OpCode::SetupLoop);
 
-	int offset = chunk.count() - loop_start + 2;
+	int offset = current_chunk().count() - loop_start + 2;
 	if(offset > UINT16_MAX){
 		throw "Loop body too large";
 	}
@@ -136,14 +146,11 @@ int Compiler::resolve_local(const std::string & name){
 	return -1;
 }
 
-void Compiler::visit(const ParseTree & tree){
+Function * Compiler::compile(const ParseTree & tree){
 	for(Node * n : tree){
 		n->accept(*this);
 	}
-
-	emit(OpCode::Return);
-
-	chunk.disasm("code");
+	return end_compiler();
 }
 
 void Compiler::visit(ExprStmt & expr_stmt){
@@ -222,7 +229,13 @@ void Compiler::visit(Block & block){
 }
 
 void Compiler::visit(FuncDecl & func_decl){
-	std::cout << "visit func_decl\n";
+	declare_var(func_decl.id.get_name());
+
+	uint8_t global = 0;
+	if(!is_local()){
+		global = make_id_const(func_decl.id.get_name());
+	}
+	mark_inited();
 }
 
 void Compiler::visit(FuncCall & func_call){

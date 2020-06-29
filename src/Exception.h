@@ -48,4 +48,9 @@ public:
 	UnexpectedEofException() : YoctoException("Unexpected end of file") {}
 };
 
+class RuntimeException : public YoctoException {
+public:
+	RuntimeException(const std::string & msg) : YoctoException("Runtime error: " + msg) {}
+};
+
 #endif

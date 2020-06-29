@@ -1,7 +1,10 @@
 var a = 0
 
 if(a){
+	var b = 100
 	print a
 }else{
 	print "a is false"
 }
+
+print b

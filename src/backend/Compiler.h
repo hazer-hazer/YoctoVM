@@ -16,10 +16,11 @@ struct Local {
 
 class Compiler : public BaseVisitor {
 public:
-	Compiler(Chunk & chunk);
+	Compiler();
 	virtual ~Compiler() = default;
 
-	void visit(const ParseTree & tree) override;
+	Function * compile(const ParseTree & tree);
+
 	void visit(ExprStmt & expr_stmt) override;
 	void visit(Literal & literal) override;
 	void visit(Identifier & id) override;
@@ -33,8 +34,16 @@ public:
 	void visit(Print & print) override;
 
 private:
-	Chunk & chunk;
 	std::vector<Local> locals;
+
+	Function * function;
+	FunctionType function_type;
+
+	inline Chunk * current_chunk() const {
+		return &function->chunk;
+	}
+
+	Function * end_compiler();
 
 	// Emit
 	void emit(uint8_t byte);

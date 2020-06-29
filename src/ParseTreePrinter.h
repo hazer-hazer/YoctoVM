@@ -10,7 +10,8 @@ public:
 	ParseTreePrinter();
 	virtual ~ParseTreePrinter() = default;
 
-	void visit(const ParseTree & tree) override;
+	void print(const ParseTree & tree);
+	
 	void visit(ExprStmt & expr_stmt) override;
 	void visit(Literal & literal) override;
 	void visit(Identifier & id) override;

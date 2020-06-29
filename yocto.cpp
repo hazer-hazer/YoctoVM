@@ -15,7 +15,7 @@ int main(int argc, const char * argv[]){
 		}
 
 	}catch(YoctoException & e){
-		std::cout << "Caught error: " << e.what() << std::endl;
+		std::cout << e.what() << std::endl;
 	}catch(std::exception & e){
 		std::cout << "Uncaught error: " << e.what() << std::endl;
 	}

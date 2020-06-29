@@ -6,5 +6,6 @@
 
 10⁻²⁴ size programming language written in pure C++.
 
-## TODO
-- Add stop_eval function that will show if the nearest executing block must be stoped
+# Architecture
+- Everything is an Object, primitives are objects too and all operators implemented as magic functions
+- The compiler always inside a function. The top-level code is always in some kinda `main()` function
